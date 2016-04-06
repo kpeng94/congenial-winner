@@ -1,5 +1,5 @@
 #The main game loop
-class Game extends Phaser.State
+class Client extends Phaser.State
 	constructor: -> super
 
 	preload: ->

@@ -1,14 +1,16 @@
-config = './config.coffee'
+#Preloads all the assets of the game
+config = window['phaser'].Config
 
 class Preload extends Phaser.State
 	constructor: -> super
 
 	preload: ->
-		@load.pack 'preload', config.pack
+		@game.load.image 'test','assets/images/sprites/Test.png'
 		return
 
 	create: ->
-		@state.start 'Load'
+		@state.start 'Setup'
 		return
-
-module.exports = Preload
+		
+window['phaser'] = window['phaser'] or {}
+window['phaser'].Preload = Preload

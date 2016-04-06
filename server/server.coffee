@@ -31,6 +31,7 @@ server = (io) ->
     isPlayer = false # All controllers represent players, but big screen does not.
     console.log('connection detected')
     socket.on 'addBigScreen', () ->
+      console.log("adding the big one")
       socket.join(bigScreenRoom)
 
     socket.on 'addPlayer', (playerData) ->
