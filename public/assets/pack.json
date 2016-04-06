@@ -1,0 +1,9 @@
+{
+	"preload": [
+		{
+			"type": "image",
+			"key": "test",
+			"url": "assets/images/sprites/Test.png"
+		}
+	]
+}
