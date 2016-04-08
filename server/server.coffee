@@ -18,12 +18,15 @@ computeUpdates = (currentPlayerData, inputData) ->
       currentPlayerData.playerLocation.x += 1
     when 40
       currentPlayerData.playerLocation.y += 1
+    #when 32
+    #
     else break
   return true
 
 updateBigScreen = (io) ->
   players = (currentGameState[key] for key of currentGameState)
   io.to(bigScreenRoom).emit('update', players)
+
 
 server = (io) ->
   numPlayers = 0
@@ -40,7 +43,7 @@ server = (io) ->
       console.log("initialPlayerData")
       console.log(socket.playerData)
       numPlayers++
-      socket.broadcast.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
+      io.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
 
     socket.on 'updateServer', (inputData) ->
       computeUpdates(socket.playerData, inputData)
@@ -52,7 +55,7 @@ server = (io) ->
         numPlayers--
         currentGameState[socket.id] = null
         delete currentGameState[socket.id]
-        socket.broadcast.to(bigScreenRoom).emit('player left',
+        io.to(bigScreenRoom).emit('player left',
           {playerData: socket.playerData, numPlayers: numPlayers})
 
 module.exports = server
