@@ -7,7 +7,7 @@ config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
-GLOBAL_NUMBER_OF_BULLETS = 1000
+GLOBAL_NUMBER_OF_BULLETS = 10
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
@@ -130,7 +130,7 @@ class Main extends Phaser.State
 
   update: ->
     @currentFireCooldown -= 1
-    
+
     for player in @playersGroup.children
       player.body.acceleration.x = -player.body.velocity.x * 0.25
       player.body.acceleration.y = -player.body.velocity.y * 0.25
@@ -145,8 +145,8 @@ class Main extends Phaser.State
     # @game.debug.body(@playersGroup)
     #for player in @playersGroup.children
     #  @game.debug.body(player)
-    #for bullet in @bullets.children
-    #  @game.debug.body(bullet)
+    for bullet in @bullets.children
+      @game.debug.body(bullet)
 
   # Player = playerSprite
   hitPlayer: (player, bullet) ->

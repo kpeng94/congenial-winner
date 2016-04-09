@@ -20,6 +20,8 @@ class Bullet
     graphics.endFill()
 
     @sprite = @game.add.sprite 0, 0
+    @game.physics.arcade.enable(@sprite)
+    @sprite.body.setSize(2 * BULLET_RADIUS, 2 * BULLET_RADIUS, -BULLET_RADIUS, -BULLET_RADIUS)
     @sprite.addChild graphics
     @sprite.exists = false
     @sprite.visible = false
