@@ -7,7 +7,7 @@ config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
-GLOBAL_NUMBER_OF_BULLETS = 10
+GLOBAL_NUMBER_OF_BULLETS = 100
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
@@ -138,6 +138,7 @@ class Main extends Phaser.State
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
     @game.physics.arcade.collide(@playersGroup)
+    @game.physics.arcade.collide(@walls, @bullets)
 
   render: ->
     #for wall in @walls.children
@@ -148,6 +149,9 @@ class Main extends Phaser.State
     for bullet in @bullets.children
       @game.debug.body(bullet)
 
+  # bulletWallCollision: (wall, bullet) ->
+    # bullet.kill()
+
   # Player = playerSprite
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
@@ -155,7 +159,7 @@ class Main extends Phaser.State
     if not (bullet.tint is player.tint)
       bullet.kill()
       player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
-    socket.emit('hit-player', collisionData)
+      socket.emit('hit-player', collisionData)
 
   fire: (player) ->
     if (@currentFireCooldown < 0)
@@ -168,12 +172,16 @@ class Main extends Phaser.State
       offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
       offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
       bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
+      bullet.body.bounce = 0.8
       # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
       # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
       @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
           BULLET_VELOCITY, bullet.body.velocity)
       @currentFireCooldown = @fireCooldown
+
+      @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+          BULLET_VELOCITY, bullet.body.velocity)
 
 
 
