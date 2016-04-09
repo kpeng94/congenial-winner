@@ -26,6 +26,7 @@ class Main extends Phaser.State
     @players = {}
     @playersGroup = null
     @bullets = null
+    @walls = null
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -37,7 +38,7 @@ class Main extends Phaser.State
     @game.physics.startSystem(Phaser.Physics.ARCADE)
 
     # Create the level for the game
-    walls = mapGenerator.generateMap1 @game
+    @walls = mapGenerator.generateMap1 @game
 
     # TODO (kpeng94): where is best place to put these?
     '''
@@ -124,11 +125,13 @@ class Main extends Phaser.State
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
 
   render: ->
+    #for wall in @walls.children
+    #  @game.debug.body(wall)
     # @game.debug.body(@playersGroup)
-    for player in @playersGroup.children
-      @game.debug.body(player)
-    for bullet in @bullets.children
-      @game.debug.body(bullet)
+    #for player in @playersGroup.children
+    #  @game.debug.body(player)
+    #for bullet in @bullets.children
+    #  @game.debug.body(bullet)
 
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)

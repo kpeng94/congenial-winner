@@ -41,7 +41,9 @@ class MapGenerator
 
     # Create the sprite and add the graphic to it
     sprite = game.add.sprite(x, y)
+    game.physics.enable(sprite, Phaser.Physics.ARCADE)
     sprite.addChild(graphics)
+    sprite.body.setSize(width, height, left, top)
 
     return sprite
 
