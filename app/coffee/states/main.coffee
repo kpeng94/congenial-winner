@@ -30,6 +30,17 @@ class Main extends Phaser.State
 
   preload: ->
     @game.stage.disableVisibilityChange = true
+    socket.on 'update-score', (data) ->
+      $('#scoretable').empty()
+      for playerColor, score of data
+        row = $('<tr />)')
+        styles = {'background-color': playerColor, 'width': '20px', 'height': '20px'}
+        leftcell = $('<td />').css(styles)
+        rightcell = $('<td />').html(score)
+        row.append(leftcell)
+        row.append(rightcell)
+        $('#scoretable').append(row)
+
     console.log 'Main state done preloading'
 
   create: ->
@@ -138,6 +149,7 @@ class Main extends Phaser.State
     # for bullet in @bullets.children
     #   @game.debug.body(bullet)
 
+  # Player = playerSprite
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
