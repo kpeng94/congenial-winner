@@ -43,7 +43,9 @@ class MapGenerator
     sprite = game.add.sprite(x, y)
     game.physics.enable(sprite, Phaser.Physics.ARCADE)
     sprite.addChild(graphics)
+    sprite.body.immovable = true
     sprite.body.setSize(width, height, left, top)
+    sprite.enableBody = true
 
     return sprite
 

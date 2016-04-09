@@ -46,6 +46,7 @@ server = (io) ->
       player = data.shooter
       target = data.target
       scores = scoreboard.processHit(player, target)
+      io.to(bigScreenRoom).emit('update-score', scores)
       console.log('scores')
       console.log(scores)
 

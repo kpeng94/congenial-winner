@@ -30,6 +30,17 @@ class Main extends Phaser.State
 
   preload: ->
     @game.stage.disableVisibilityChange = true
+    socket.on 'update-score', (data) ->
+      $('#scoretable').empty()
+      for playerColor, score of data
+        row = $('<tr />)')
+        styles = {'background-color': playerColor, 'width': '20px', 'height': '20px'}
+        leftcell = $('<td />').css(styles)
+        rightcell = $('<td />').html(score)
+        row.append(leftcell)
+        row.append(rightcell)
+        $('#scoretable').append(row)
+
     console.log 'Main state done preloading'
 
   create: ->
@@ -39,6 +50,7 @@ class Main extends Phaser.State
 
     # Create the level for the game
     @walls = mapGenerator.generateMap1 @game
+    @walls.enableBody = true
 
     # TODO (kpeng94): where is best place to put these?
     '''
@@ -71,16 +83,18 @@ class Main extends Phaser.State
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
-      input = 3 * data.input
+      input = 8 * data.input
       playerSprite.angle += input #TODO: tweak
 
     socket.on 'move', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
-      input = 4 * data.input
-      playerSprite.x += input * Math.cos(playerSprite.rotation)
-      playerSprite.y += input * Math.sin(playerSprite.rotation)
+      input = 100 * data.input
+      playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
+      playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
+      playerSprite.body.acceleration.x = -playerSprite.body.velocity.x * 0.25
+      playerSprite.body.acceleration.y = -playerSprite.body.velocity.y * 0.25
 
     socket.on 'fire', (data) ->
       console.log('Fire')
@@ -94,20 +108,24 @@ class Main extends Phaser.State
       playerStates = data
       console.log playerStates
 
-    # Set up bullets
     @playersGroup = @game.add.group()
+    @playersGroup.enableBody = true
+    @playersGroup.physicsBodyType = Phaser.Physics.ARCADE
+    @game.physics.enable(@playersGroup)
+
+    # Set up bullets
     @bullets = @game.add.group()
     @bullets.enableBody = true
     @bullets.physicsBodyType = Phaser.Physics.ARCADE
+
     for i in [0...GLOBAL_NUMBER_OF_BULLETS]
       bullet = new Bullet(@game)
       @bullets.add(bullet.constructSprite())
-    console.log 'bullets'
-    console.log @bullets
     @bullets.setAll('anchor.x', 0.5)
     @bullets.setAll('anchor.y', 0.5)
     @bullets.setAll('outOfBoundsKill', true)
     @bullets.setAll('checkWorldBounds', true)
+
 
     console.log 'Main state created'
 
@@ -123,6 +141,8 @@ class Main extends Phaser.State
         playerSprite.y = playerLocation.y
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
+    @game.physics.arcade.collide(@playersGroup, @walls)
+    @game.physics.arcade.collide(@playersGroup)
 
   render: ->
     #for wall in @walls.children
@@ -133,12 +153,13 @@ class Main extends Phaser.State
     #for bullet in @bullets.children
     #  @game.debug.body(bullet)
 
+  # Player = playerSprite
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
     if not bullet.tint is player.tint
       bullet.kill()
-      player.reset(util.random(0,))
+      player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
     socket.emit('hit-player', collisionData)
 
   fire: (player) ->
@@ -147,7 +168,7 @@ class Main extends Phaser.State
     offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
-    bullet.tint = util.formatColor(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
+    bullet.tint = playerSprite.tint
     # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
     # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
