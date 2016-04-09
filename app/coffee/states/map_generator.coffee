@@ -42,6 +42,7 @@ class MapGenerator
     # Create the sprite and add the graphic to it
     sprite = game.add.sprite(x, y)
     sprite.addChild(graphics)
+    sprite.enableBody = true
 
     return sprite
 

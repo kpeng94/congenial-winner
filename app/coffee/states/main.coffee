@@ -26,6 +26,7 @@ class Main extends Phaser.State
     @players = {}
     @playersGroup = null
     @bullets = null
+    @walls = null
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -37,7 +38,8 @@ class Main extends Phaser.State
     @game.physics.startSystem(Phaser.Physics.ARCADE)
 
     # Create the level for the game
-    walls = mapGenerator.generateMap1 @game
+    @walls = mapGenerator.generateMap1 @game
+    @walls.enableBody = true
 
     # TODO (kpeng94): where is best place to put these?
     '''
@@ -93,20 +95,24 @@ class Main extends Phaser.State
       playerStates = data
       console.log playerStates
 
-    # Set up bullets
     @playersGroup = @game.add.group()
+    @playersGroup.enableBody = true
+    @playersGroup.physicsBodyType = Phaser.Physics.ARCADE
+    @game.physics.enable(@playersGroup)
+
+    # Set up bullets
     @bullets = @game.add.group()
     @bullets.enableBody = true
     @bullets.physicsBodyType = Phaser.Physics.ARCADE
+
     for i in [0...GLOBAL_NUMBER_OF_BULLETS]
       bullet = new Bullet(@game)
       @bullets.add(bullet.constructSprite())
-    console.log 'bullets'
-    console.log @bullets
     @bullets.setAll('anchor.x', 0.5)
     @bullets.setAll('anchor.y', 0.5)
     @bullets.setAll('outOfBoundsKill', true)
     @bullets.setAll('checkWorldBounds', true)
+
 
     console.log 'Main state created'
 
@@ -122,20 +128,22 @@ class Main extends Phaser.State
         playerSprite.y = playerLocation.y
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
+    @game.physics.arcade.collide(@playersGroup, @walls)
+    @game.physics.arcade.collide(@playersGroup)
 
   render: ->
     # @game.debug.body(@playersGroup)
-    for player in @playersGroup.children
-      @game.debug.body(player)
-    for bullet in @bullets.children
-      @game.debug.body(bullet)
+    # for player in @playersGroup.children
+    #   @game.debug.body(player)
+    # for bullet in @bullets.children
+    #   @game.debug.body(bullet)
 
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
     if not bullet.tint is player.tint
       bullet.kill()
-      player.reset(util.random(0,))
+      player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
     socket.emit('hit-player', collisionData)
 
   fire: (player) ->
@@ -144,7 +152,7 @@ class Main extends Phaser.State
     offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
-    bullet.tint = util.formatColor(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
+    bullet.tint = playerSprite.tint
     # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
     # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
