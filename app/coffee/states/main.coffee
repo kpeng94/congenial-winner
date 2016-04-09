@@ -10,6 +10,7 @@ MapGenerator = require './map_generator.coffee'
 GLOBAL_NUMBER_OF_BULLETS = 100
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
+BULLET_FIRE_COOLDOWN = 20
 TRIANGLE_HALF_WIDTH = 15
 
 socket = io()
@@ -27,7 +28,7 @@ class Main extends Phaser.State
     @playersGroup = null
     @bullets = null
     @walls = null
-    @fireCooldown = 20
+    @fireCooldown = BULLET_FIRE_COOLDOWN
     @currentFireCooldown = @fireCooldown
 
   preload: ->
@@ -170,8 +171,8 @@ class Main extends Phaser.State
       bullet.color = player.getColor()
       # console.log bullet.tint
       # console.log player.getColor()
-      offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
-      offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+      offsetX = Math.cos(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+      offsetY = Math.sin(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
       bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
       bullet.body.bounce = 0.8
       # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
