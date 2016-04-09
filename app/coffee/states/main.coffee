@@ -138,7 +138,8 @@ class Main extends Phaser.State
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
     @game.physics.arcade.collide(@playersGroup)
-    @game.physics.arcade.collide(@walls, @bullets)
+    # @game.physics.arcade.collide(@walls, @bullets)
+    @game.physics.arcade.overlap(@walls, @bullets, @bulletWallCollision, null, @)
 
   render: ->
     #for wall in @walls.children
@@ -146,11 +147,11 @@ class Main extends Phaser.State
     # @game.debug.body(@playersGroup)
     #for player in @playersGroup.children
     #  @game.debug.body(player)
-    for bullet in @bullets.children
-      @game.debug.body(bullet)
+    # for bullet in @bullets.children
+      # @game.debug.body(bullet)
 
-  # bulletWallCollision: (wall, bullet) ->
-    # bullet.kill()
+  bulletWallCollision: (wall, bullet) ->
+    bullet.kill()
 
   # Player = playerSprite
   hitPlayer: (player, bullet) ->
