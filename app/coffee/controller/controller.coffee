@@ -1,11 +1,13 @@
 Util = require '../util.coffee'
-
+config = require '../config.coffee'
 util = new Util
+
+eventKeys = [32, 37, 38, 39, 40]
 
 # Send initial player information to the server
 socket = io()
-initialX = util.getRandomInt(100, 300)
-initialY = util.getRandomInt(100, 300)
+initialX = util.getRandomInt(0, config.width)
+initialY = util.getRandomInt(0, config.height)
 playerLocation = {x: initialX, y: initialY}
 playerColor = util.generateRandomColor()
 playerData = {playerLocation: playerLocation, playerColor: playerColor}
@@ -25,8 +27,15 @@ sendRotationInput = (input) ->
 sendMovementInput = (input) ->
   socket.emit('move', input)
 
+sendFireInput = ->
+  console.log 'hello'
+  socket.emit('fire')
+
 $(window).keydown (event) ->
+  console.log event.which
   switch event.which
+    when 32
+      sendFireInput()
     when 37
       sendRotationInput -1
     when 38
@@ -36,4 +45,3 @@ $(window).keydown (event) ->
     when 40
       sendMovementInput -1
     else break
-  console.log('KEY DOWN')

@@ -1,11 +1,16 @@
 Phaser = require 'Phaser'
 
+Bullet = require '../sprites/bullet.coffee'
+Player = require '../sprites/player.coffee'
 Util = require '../util.coffee'
 config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
-GLOBAL_NUMBER_OF_BULLETS = 10000
+GLOBAL_NUMBER_OF_BULLETS = 10
+DISTANCE_OFFSET = 5
+BULLET_VELOCITY = 200
+TRIANGLE_HALF_WIDTH = 15
 
 socket = io()
 playerStates = {}
@@ -17,7 +22,10 @@ mapGenerator = new MapGenerator
 # we want to add a
 class Main extends Phaser.State
   constructor: ->
-    @gameSprites = {}
+    super()
+    @players = {}
+    @playersGroup = null
+    @bullets = null
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -26,6 +34,7 @@ class Main extends Phaser.State
   create: ->
     self = @
     @game.stage.backgroundColor = '#EEEEEE'
+    @game.physics.startSystem(Phaser.Physics.ARCADE)
 
     # Create the level for the game
     walls = mapGenerator.generateMap1 @game
@@ -39,84 +48,108 @@ class Main extends Phaser.State
       console.log data
       playerColor = data.playerData.playerColor
       playerLocation = data.playerData.playerLocation
-      if playerColor not of self.gameSprites
-        self.addPlayer(playerColor, playerLocation)
-
+      if playerColor not of self.players
+        player = new Player(self.game, playerColor)
+        playerSprite = player.constructSprite(playerLocation)
+        self.players[playerColor] = player
+        self.playersGroup.add(playerSprite)
 
     socket.on 'player left', (data) ->
       console.log 'player left'
       console.log data
       playerColor = data.playerData.playerColor
-      if playerColor of self.gameSprites
-        player = self.gameSprites[playerColor]
-        player.destroy()
-        delete self.gameSprites[playerColor]
-      console.log self.gameSprites
+      if playerColor of self.players
+        player = self.players[playerColor]
+        playerSprite = player.getSprite()
+        playerSprite.destroy()
+        self.playersGroup.remove(playerSprite)
+        delete self.players[playerColor]
+      console.log self.players
 
     socket.on 'rotate', (data) ->
-      console.log('Rotate')
-      console.log(data)
       playerColor = data.playerColor
-      playerSprite = self.gameSprites[playerColor]
+      player = self.players[playerColor]
+      playerSprite = player.getSprite()
       input = 3 * data.input
       playerSprite.angle += input #TODO: tweak
 
     socket.on 'move', (data) ->
-      console.log('Move')
+      playerColor = data.playerColor
+      player = self.players[playerColor]
+      playerSprite = player.getSprite()
+      input = 4 * data.input
+      playerSprite.x += input * Math.cos(playerSprite.rotation)
+      playerSprite.y += input * Math.sin(playerSprite.rotation)
+
+    socket.on 'fire', (data) ->
+      console.log('Fire')
       console.log(data)
       playerColor = data.playerColor
-      playerSprite = self.gameSprites[playerColor]
-      input = 4 * data.input
-      playerSprite.x += input * Math.cos(playerSprite.angle * Math.PI / 180)
-      playerSprite.y += input * Math.sin(playerSprite.angle * Math.PI / 180)
+      player = self.players[playerColor]
+      playerSprite = player.getSprite()
+      self.fire(player)
 
     socket.on 'update', (data) ->
       playerStates = data
       console.log playerStates
 
     # Set up bullets
-    # bullets = game.add.group()
-    # bullets.enableBody = true
-    # bullets.physicsBodyType = Phaser.Physics.ARCADE
-    # bullets.createMultiple(GLOBAL_NUMBER_OF_BULLETS, 'bullet', 0, false)
-    # bullets.setAll('anchor.x', 0.5)
-    # bullets.setAll('anchor.y', 0.5)
-    # bullets.setAll('outOfBoundsKill', true)
-    # bullets.setAll('checkWorldBounds', true
+    @playersGroup = @game.add.group()
+    @bullets = @game.add.group()
+    @bullets.enableBody = true
+    @bullets.physicsBodyType = Phaser.Physics.ARCADE
+    for i in [0...GLOBAL_NUMBER_OF_BULLETS]
+      bullet = new Bullet(@game)
+      @bullets.add(bullet.constructSprite())
+    console.log 'bullets'
+    console.log @bullets
+    @bullets.setAll('anchor.x', 0.5)
+    @bullets.setAll('anchor.y', 0.5)
+    @bullets.setAll('outOfBoundsKill', true)
+    @bullets.setAll('checkWorldBounds', true)
 
     console.log 'Main state created'
 
   update: ->
+    # Draw player sprites
     for playerData in playerStates
       playerColor = playerData.playerColor
       playerLocation = playerData.playerLocation
-      playerSprite = @gameSprites[playerColor]
-      if playerSprite?
+      player = @players[playerColor]
+      if player?
+        playerSprite = player.getSprite()
         playerSprite.x = playerLocation.x
         playerSprite.y = playerLocation.y
-    #     console.log playerSprite.x
-    #     console.log playerSprite.y
-    #   console.log playerSprite
-    # console.log playerStates
 
-  addPlayer: (playerColor, playerLocation) ->
-    # Create the graphics for the player
-    graphics = @game.add.graphics 0, 0
-    graphics.lineStyle 3, util.formatColor(playerColor)
-    #graphics.beginFill util.formatColor(playerColor), 0
-    graphics.moveTo 15, 0
-    graphics.lineTo -15, -15
-    graphics.lineTo -7, 0
-    graphics.lineTo -15, 15
-    graphics.lineTo 15, 0
-    #graphics.endFill
-    window.graphics = graphics
+    @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
 
-    # Make a sprite for the player
-    player = @game.add.sprite playerLocation.x, playerLocation.y
-    player.addChild graphics
-    @gameSprites[playerColor] = player
-    console.log @gameSprites
+  render: ->
+    # @game.debug.body(@playersGroup)
+    for player in @playersGroup.children
+      @game.debug.body(player)
+    for bullet in @bullets.children
+      @game.debug.body(bullet)
+
+  hitPlayer: (player, bullet) ->
+    console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
+    collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
+    if not bullet.tint is player.tint
+      bullet.kill()
+      player.reset(util.random(0,))
+    socket.emit('hit-player', collisionData)
+
+  fire: (player) ->
+    playerSprite = player.getSprite()
+    bullet = @bullets.getFirstExists(false)
+    offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+    offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+    bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
+    bullet.tint = util.formatColor(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
+    # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
+    # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
+
+    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+        BULLET_VELOCITY, bullet.body.velocity)
 
 
 
