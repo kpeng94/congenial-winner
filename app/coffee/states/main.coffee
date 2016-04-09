@@ -97,13 +97,14 @@ class Main extends Phaser.State
   addPlayer: (playerColor, playerLocation) ->
     # Create the graphics for the player
     graphics = @game.add.graphics 0, 0
-    graphics.lineStyle 0
-    graphics.beginFill util.formatColor(playerColor), 0.5
-    graphics.moveTo 40, 0
-    graphics.lineTo -20, -15
-    graphics.lineTo -20, 15
-    graphics.lineTo 40, 0
-    graphics.endFill
+    graphics.lineStyle 3, util.formatColor(playerColor)
+    #graphics.beginFill util.formatColor(playerColor), 0
+    graphics.moveTo 15, 0
+    graphics.lineTo -15, -15
+    graphics.lineTo -7, 0
+    graphics.lineTo -15, 15
+    graphics.lineTo 15, 0
+    #graphics.endFill
     window.graphics = graphics
 
     # Make a sprite for the player
