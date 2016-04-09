@@ -1,7 +1,7 @@
 Phaser = require 'Phaser'
 
 class MapGenerator
-  
+
   generateMap1: (game) ->
     console.log 'Map 1 generated'
     walls = game.add.group()

@@ -54,7 +54,7 @@ class Main extends Phaser.State
       console.log self.gameSprites
 
     socket.on 'rotate', (data) ->
-      console.log("Rotate")
+      console.log('Rotate')
       console.log(data)
       playerColor = data.playerColor
       playerSprite = self.gameSprites[playerColor]
@@ -62,7 +62,7 @@ class Main extends Phaser.State
       playerSprite.angle += input #TODO: tweak
 
     socket.on 'move', (data) ->
-      console.log("Move")
+      console.log('Move')
       console.log(data)
       playerColor = data.playerColor
       playerSprite = self.gameSprites[playerColor]
