@@ -7,7 +7,7 @@ config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
-GLOBAL_NUMBER_OF_BULLETS = 10
+GLOBAL_NUMBER_OF_BULLETS = 1000
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
@@ -126,7 +126,6 @@ class Main extends Phaser.State
     @bullets.setAll('outOfBoundsKill', true)
     @bullets.setAll('checkWorldBounds', true)
 
-
     console.log 'Main state created'
 
   update: ->
@@ -157,7 +156,7 @@ class Main extends Phaser.State
   hitPlayer: (player, bullet) ->
     console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
-    if not bullet.tint is player.tint
+    if not (bullet.tint is player.tint)
       bullet.kill()
       player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
     socket.emit('hit-player', collisionData)
@@ -165,10 +164,13 @@ class Main extends Phaser.State
   fire: (player) ->
     playerSprite = player.getSprite()
     bullet = @bullets.getFirstExists(false)
+    bullet.tint = player.getColor()
+    bullet.color = player.getColor()
+    # console.log bullet.tint
+    # console.log player.getColor()
     offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
-    bullet.tint = playerSprite.tint
     # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
     # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
