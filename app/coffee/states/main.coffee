@@ -2,6 +2,7 @@ Phaser = require 'Phaser'
 
 Util = require '../util.coffee'
 config = require '../config.coffee'
+MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 10000
@@ -10,6 +11,7 @@ socket = io()
 playerStates = {}
 socket.emit('addBigScreen')
 util = new Util
+mapGenerator = new MapGenerator
 
 # On player connection,
 # we want to add a
@@ -24,6 +26,9 @@ class Main extends Phaser.State
   create: ->
     self = @
     @game.stage.backgroundColor = '#EEEEEE'
+
+    # Create the level for the game
+    walls = mapGenerator.generateMap1 @game
 
     # TODO (kpeng94): where is best place to put these?
     '''
@@ -112,5 +117,7 @@ class Main extends Phaser.State
     player.addChild graphics
     @gameSprites[playerColor] = player
     console.log @gameSprites
+
+
 
 module.exports = Main
