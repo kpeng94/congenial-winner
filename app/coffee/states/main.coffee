@@ -48,6 +48,23 @@ class Main extends Phaser.State
         delete self.gameSprites[playerColor]
       console.log self.gameSprites
 
+    socket.on 'rotate', (data) ->
+      console.log("Rotate")
+      console.log(data)
+      playerColor = data.playerColor
+      playerSprite = self.gameSprites[playerColor]
+      input = 3 * data.input
+      playerSprite.angle += input #TODO: tweak
+
+    socket.on 'move', (data) ->
+      console.log("Move")
+      console.log(data)
+      playerColor = data.playerColor
+      playerSprite = self.gameSprites[playerColor]
+      input = 4 * data.input
+      playerSprite.x += input * Math.cos(playerSprite.angle * Math.PI / 180)
+      playerSprite.y += input * Math.sin(playerSprite.angle * Math.PI / 180)
+
     socket.on 'update', (data) ->
       playerStates = data
       console.log playerStates
@@ -82,10 +99,10 @@ class Main extends Phaser.State
     graphics = @game.add.graphics 0, 0
     graphics.lineStyle 0
     graphics.beginFill util.formatColor(playerColor), 0.5
-    graphics.moveTo 0, 40
-    graphics.lineTo -15, -20
-    graphics.lineTo 15, -20
-    graphics.lineTo 0, 40
+    graphics.moveTo 40, 0
+    graphics.lineTo -20, -15
+    graphics.lineTo -20, 15
+    graphics.lineTo 40, 0
     graphics.endFill
     window.graphics = graphics
 

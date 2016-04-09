@@ -45,6 +45,13 @@ server = (io) ->
       numPlayers++
       io.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
 
+    # Have the server relay controller input to the big room
+    socket.on 'rotate', (input) ->
+      io.to(bigScreenRoom).emit('rotate', { input: input, playerColor: socket.playerData.playerColor })
+
+    socket.on 'move', (input) ->
+      io.to(bigScreenRoom).emit('move', { input: input, playerColor: socket.playerData.playerColor })
+
     socket.on 'updateServer', (inputData) ->
       computeUpdates(socket.playerData, inputData)
       console.log(currentGameState)
