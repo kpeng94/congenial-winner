@@ -93,8 +93,6 @@ class Main extends Phaser.State
       input = 100 * data.input
       playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
       playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
-      playerSprite.body.acceleration.x = -playerSprite.body.velocity.x * 0.25
-      playerSprite.body.acceleration.y = -playerSprite.body.velocity.y * 0.25
 
     socket.on 'fire', (data) ->
       console.log('Fire')
@@ -129,15 +127,9 @@ class Main extends Phaser.State
     console.log 'Main state created'
 
   update: ->
-    # Draw player sprites
-    for playerData in playerStates
-      playerColor = playerData.playerColor
-      playerLocation = playerData.playerLocation
-      player = @players[playerColor]
-      if player?
-        playerSprite = player.getSprite()
-        playerSprite.x = playerLocation.x
-        playerSprite.y = playerLocation.y
+    for player in @playersGroup.children
+      player.body.acceleration.x = -player.body.velocity.x * 0.25
+      player.body.acceleration.y = -player.body.velocity.y * 0.25
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
