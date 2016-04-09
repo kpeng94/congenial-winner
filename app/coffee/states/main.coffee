@@ -8,6 +8,7 @@ MapGenerator = require './map_generator.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
+BULLET_LIFESPAN = 3000 # number of milliseconds
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
@@ -146,8 +147,8 @@ class Main extends Phaser.State
     # @game.debug.body(@playersGroup)
     #for player in @playersGroup.children
     #  @game.debug.body(player)
-    for bullet in @bullets.children
-      @game.debug.body(bullet)
+    # for bullet in @bullets.children
+      # @game.debug.body(bullet)
 
   # bulletWallCollision: (wall, bullet) ->
     # bullet.kill()
@@ -172,7 +173,9 @@ class Main extends Phaser.State
       offsetX = Math.cos(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
       offsetY = Math.sin(playerSprite.rotation) * (3 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
       bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
-      bullet.body.bounce = 0.8
+      bullet.body.bounce.x = 1
+      bullet.body.bounce.y = 1
+      bullet.lifespan = BULLET_LIFESPAN
       # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
       # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
