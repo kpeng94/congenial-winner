@@ -3,6 +3,14 @@ config = require '../config.coffee'
 util = new Util
 
 eventKeys = [32, 37, 38, 39, 40]
+keyCodeToName = {
+  32: "fire",
+  37: "left",
+  38: "up",
+  39: "right",
+  40: "down"
+}
+keys = []
 
 # Send initial player information to the server
 socket = io()
@@ -32,16 +40,40 @@ sendFireInput = ->
   socket.emit('fire')
 
 $(window).keydown (event) ->
-  console.log event.which
-  switch event.which
-    when 32
+  #debugging things
+  code = event.keyCode
+  if keyCodeToName[code] != null
+    keyName = keyCodeToName[code]
+    keys[keyName] = true;
+    console.log keys
+    if keys["fire"]
       sendFireInput()
-    when 37
+    if keys["left"]
       sendRotationInput -1
-    when 38
-      sendMovementInput 1
-    when 39
+    else if keys["right"]
       sendRotationInput 1
-    when 40
+    if keys["up"]
+      sendMovementInput 1
+    else if keys["down"]
       sendMovementInput -1
-    else break
+      
+    #end debugging things
+    #console.log event.which
+    #switch event.which
+    #  when 32
+    #    sendFireInput()
+    #  when 37
+    #    sendRotationInput -1
+    #  when 38
+    #    sendMovementInput 1
+    #  when 39
+    #    sendRotationInput 1
+    #  when 40
+    #    sendMovementInput -1
+    #  else break
+
+$(window).keyup (event) ->
+  code = event.keyCode
+  if keyCodeToName[code] != null
+    keyName = keyCodeToName[code]
+    keys[keyName] = false;
