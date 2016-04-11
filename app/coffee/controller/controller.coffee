@@ -22,6 +22,9 @@ playerData = {playerLocation: playerLocation, playerColor: playerColor}
 console.log(playerData)
 socket.emit('addPlayer', playerData)
 
+previousFireTime = 0
+RELOAD_TIME = 340
+
 # Render something on the screen for the controller
 $('#container').css('background-color', playerColor)
 
@@ -37,7 +40,10 @@ sendMovementInput = (input) ->
 
 sendFireInput = ->
   console.log 'hello'
-  socket.emit('fire')
+  fireTime = new Date()
+  if (fireTime - previousFireTime > RELOAD_TIME)
+    previousFireTime = fireTime
+    socket.emit('fire')
 
 $(window).keydown (event) ->
   #debugging things
