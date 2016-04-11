@@ -46,9 +46,11 @@ sendFireInput = ->
     socket.emit('fire')
 
 $(window).keydown (event) ->
-  #debugging things
+  #Gets the keyCode
   code = event.keyCode
+  #Only processes if event key code
   if keyCodeToName[code] != null
+    #Gets key code name
     keyName = keyCodeToName[code]
     keys[keyName] = true;
     console.log keys
