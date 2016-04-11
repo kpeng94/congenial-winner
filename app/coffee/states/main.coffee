@@ -10,7 +10,6 @@ MapGenerator = require './map_generator.coffee'
 GLOBAL_NUMBER_OF_BULLETS = 100
 DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
-BULLET_FIRE_COOLDOWN = 20
 TRIANGLE_HALF_WIDTH = 15
 
 socket = io()
@@ -28,8 +27,6 @@ class Main extends Phaser.State
     @playersGroup = null
     @bullets = null
     @walls = null
-    @fireCooldown = BULLET_FIRE_COOLDOWN
-    @currentFireCooldown = @fireCooldown
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -130,7 +127,6 @@ class Main extends Phaser.State
     console.log 'Main state created'
 
   update: ->
-    @currentFireCooldown -= 1
 
     for player in @playersGroup.children
       player.body.acceleration.x = -player.body.velocity.x * 0.25
@@ -164,26 +160,24 @@ class Main extends Phaser.State
       socket.emit('hit-player', collisionData)
 
   fire: (player) ->
-    if (@currentFireCooldown < 0)
-      playerSprite = player.getSprite()
-      bullet = @bullets.getFirstExists(false)
-      bullet.tint = player.getColor()
-      bullet.color = player.getColor()
-      # console.log bullet.tint
-      # console.log player.getColor()
-      offsetX = Math.cos(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
-      offsetY = Math.sin(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
-      bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
-      bullet.body.bounce = 0.8
-      # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
-      # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
+    playerSprite = player.getSprite()
+    bullet = @bullets.getFirstExists(false)
+    bullet.tint = player.getColor()
+    bullet.color = player.getColor()
+    # console.log bullet.tint
+    # console.log player.getColor()
+    offsetX = Math.cos(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+    offsetY = Math.sin(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
+    bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
+    bullet.body.bounce = 0.8
+    # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
+    # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
 
-      @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
-          BULLET_VELOCITY, bullet.body.velocity)
-      @currentFireCooldown = @fireCooldown
+    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+        BULLET_VELOCITY, bullet.body.velocity)
 
-      @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
-          BULLET_VELOCITY, bullet.body.velocity)
+    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+        BULLET_VELOCITY, bullet.body.velocity)
 
 
 

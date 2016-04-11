@@ -5,6 +5,7 @@ util = new Util
 eventKeys = [32, 37, 38, 39, 40]
 
 # Send initial player information to the server
+previousTimeOfFire = 0
 socket = io()
 initialX = util.getRandomInt(0, config.width)
 initialY = util.getRandomInt(0, config.height)
@@ -28,8 +29,12 @@ sendMovementInput = (input) ->
   socket.emit('move', input)
 
 sendFireInput = ->
-  console.log 'hello'
-  socket.emit('fire')
+  fireTime = new Date()
+  diff = fireTime - previousTimeOfFire
+  console.log(diff)
+  if (fireTime - previousTimeOfFire > 360)
+    previousTimeOfFire = fireTime
+    socket.emit('fire')
 
 $(window).keydown (event) ->
   console.log event.which
