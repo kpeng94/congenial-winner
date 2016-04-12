@@ -4,11 +4,11 @@ util = new Util
 
 eventKeys = [32, 37, 38, 39, 40]
 keyCodeToName = {
-  32: "fire",
-  37: "left",
-  38: "up",
-  39: "right",
-  40: "down"
+  32: 'fire',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down'
 }
 keys = []
 
@@ -49,22 +49,22 @@ $(window).keydown (event) ->
   #Gets the keyCode
   code = event.keyCode
   #Only processes if event key code
-  if keyCodeToName[code] != null
+  if keyCodeToName[code] isnt null
     #Gets key code name
     keyName = keyCodeToName[code]
-    keys[keyName] = true;
+    keys[keyName] = true
     console.log keys
-    if keys["fire"]
+    if keys['fire']
       sendFireInput()
-    if keys["left"]
+    if keys['left']
       sendRotationInput -1
-    else if keys["right"]
+    else if keys['right']
       sendRotationInput 1
-    if keys["up"]
+    if keys['up']
       sendMovementInput 1
-    else if keys["down"]
+    else if keys['down']
       sendMovementInput -1
-      
+
     #end debugging things
     #console.log event.which
     #switch event.which
@@ -82,6 +82,6 @@ $(window).keydown (event) ->
 
 $(window).keyup (event) ->
   code = event.keyCode
-  if keyCodeToName[code] != null
+  if keyCodeToName[code] isnt null
     keyName = keyCodeToName[code]
-    keys[keyName] = false;
+    keys[keyName] = false
