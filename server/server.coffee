@@ -42,12 +42,9 @@ server = (io) ->
           {playerData: socket.playerData, numPlayers: numPlayers})
 
     socket.on 'hit-player', (data) ->
-      console.log ('hit-player start')
       player = data.shooter
       target = data.target
       scores = scoreboard.processHit(player, target)
       io.to(bigScreenRoom).emit('update-score', scores)
-      console.log('scores')
-      console.log(scores)
 
 module.exports = server

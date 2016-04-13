@@ -9,7 +9,7 @@ util = new Util
 class Bullet
   constructor: (game) ->
     @game = game
-    @owner = '#000000'
+    @owner = '#FFFFFF'
     @sprite = null
 
   constructSprite: ->

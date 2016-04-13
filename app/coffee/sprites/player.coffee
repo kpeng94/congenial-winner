@@ -29,8 +29,6 @@ class Player
     @game.physics.enable(@sprite)
     @sprite.body.collideWorldBounds = true
     @sprite.tint = @color
-    # @sprite.body.width = TRIANGLE_HALF_WIDTH * 2
-    # @sprite.body.height = TRIANGLE_HALF_WIDTH * 2
     return @sprite
 
   getSprite: ->

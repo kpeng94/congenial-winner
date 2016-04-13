@@ -135,7 +135,7 @@ class Main extends Phaser.State
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
     @game.physics.arcade.collide(@playersGroup)
-    @game.physics.arcade.collide(@walls, @bullets)
+    @game.physics.arcade.collide(@walls, @bullets, @bulletWallCollision)
 
   render: ->
     #for wall in @walls.children
@@ -146,14 +146,22 @@ class Main extends Phaser.State
     # for bullet in @bullets.children
       # @game.debug.body(bullet)
 
-  # bulletWallCollision: (wall, bullet) ->
-    # bullet.kill()
+  bulletWallCollision: (wall, bullet) ->
+    if bullet.bounces?
+      bullet.bounces += 1
+    else
+      bullet.bounces = 1
 
   # Player = playerSprite
   hitPlayer: (player, bullet) ->
-    console.log('Shooter color: ' + bullet.tint + 'Hit color: ' + player.tint)
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
-    if not (bullet.tint is player.tint)
+
+    bulletHasHitWall = bullet.bounces? and bullet.bounces >= 1
+    bulletNotOwnedByPlayer = bullet.tint isnt player.tint
+
+    # If the bullet bounced off some wall, the bullet should be able to kill any player
+    # Otherwise, the bullet should only be able to hit other players
+    if bulletHasHitWall or bulletNotOwnedByPlayer
       bullet.kill()
       player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
       socket.emit('hit-player', collisionData)
@@ -161,10 +169,9 @@ class Main extends Phaser.State
   fire: (player) ->
     playerSprite = player.getSprite()
     bullet = @bullets.getFirstExists(false)
+    # bullet.children[0] contains the graphic for the bullet
+    bullet.children[0].tint = util.formatColor(player.getColor())
     bullet.tint = player.getColor()
-    bullet.color = player.getColor()
-    # console.log bullet.tint
-    # console.log player.getColor()
     offsetX = Math.cos(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     offsetY = Math.sin(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
     bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
