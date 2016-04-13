@@ -65,21 +65,6 @@ $(window).keydown (event) ->
     else if keys['down']
       sendMovementInput -1
 
-    #end debugging things
-    #console.log event.which
-    #switch event.which
-    #  when 32
-    #    sendFireInput()
-    #  when 37
-    #    sendRotationInput -1
-    #  when 38
-    #    sendMovementInput 1
-    #  when 39
-    #    sendRotationInput 1
-    #  when 40
-    #    sendMovementInput -1
-    #  else break
-
 $(window).keyup (event) ->
   code = event.keyCode
   if keyCodeToName[code] isnt null
