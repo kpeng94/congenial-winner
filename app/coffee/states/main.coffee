@@ -11,6 +11,7 @@ GLOBAL_NUMBER_OF_BULLETS = 100
 BULLET_LIFESPAN = 3000 # number of milliseconds
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
+PLAYER_SPEED = 100
 
 socket = io()
 playerStates = {}
@@ -86,13 +87,28 @@ class Main extends Phaser.State
       input = 8 * data.input
       playerSprite.angle += input #TODO: tweak
 
-    socket.on 'move', (data) ->
+    socket.on 'moveVertically', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
-      input = 100 * data.input
-      playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
-      playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
+      input = PLAYER_SPEED * data.input
+      #playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
+      #playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
+      playerSprite.body.velocity.y = input
+
+    socket.on 'moveHorizontally', (data) ->
+      playerColor = data.playerColor
+      player = self.players[playerColor]
+      playerSprite = player.getSprite()
+      input = PLAYER_SPEED * data.input
+      playerSprite.body.velocity.x = input
+
+    socket.on 'moveStop', (data) ->
+      playerColor = data.playerColor
+      player = self.players[playerColor]
+      playerSprite = player.getSprite()
+      playerSprite.body.velocity.x = 0
+      playerSprite.body.velocity.y = 0
 
     socket.on 'fire', (data) ->
       console.log('Fire')

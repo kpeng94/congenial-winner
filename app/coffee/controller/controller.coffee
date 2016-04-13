@@ -6,11 +6,19 @@ eventKeys = [32, 37, 38, 39, 40]
 keyCodeToName = {
   32: 'fire',
   37: 'left',
+  65: 'left',
   38: 'up',
+  87: 'up',
   39: 'right',
-  40: 'down'
+  68: 'right',
+  40: 'down',
+  83: 'down',
+  81: 'turn left',
+  69: 'turn right'
+
 }
 keys = []
+MOMENTUM_ENABLED = false
 
 # Send initial player information to the server
 socket = io()
@@ -34,9 +42,17 @@ $('#container').css('background-color', playerColor)
 sendRotationInput = (input) ->
   socket.emit('rotate', input)
 
-# input is either -1 or 1 (-1 meaning to move backwards and 1 to move forwards)
-sendMovementInput = (input) ->
-  socket.emit('move', input)
+# input is either -1 or 1 (-1 meaning to move up and 1 to move down)
+sendVerticalMovementInput = (input) ->
+  socket.emit('moveVertically', input)
+
+# input is either -1 or 1 (-1 meaning to move left and 1 to move right)
+sendHorizontalMovementInput = (input) ->
+  socket.emit('moveHorizontally', input)
+
+# stops movement
+sendStopMovementInput = (input) ->
+  socket.emit('moveStop', input)
 
 sendFireInput = ->
   console.log 'hello'
@@ -54,19 +70,30 @@ $(window).keydown (event) ->
     keyName = keyCodeToName[code]
     keys[keyName] = true
     console.log keys
+    #Fire keypress
     if keys['fire']
       sendFireInput()
-    if keys['left']
+    #Turning keypresses
+    if keys['turn left']
       sendRotationInput -1
-    else if keys['right']
+    else if keys['turn right']
       sendRotationInput 1
+    #Movement keypresses
+    if keys['left']
+      sendHorizontalMovementInput -1
+    else if keys['right']
+      sendHorizontalMovementInput 1
     if keys['up']
-      sendMovementInput 1
+      sendVerticalMovementInput -1
     else if keys['down']
-      sendMovementInput -1
+      sendVerticalMovementInput 1
 
 $(window).keyup (event) ->
   code = event.keyCode
   if keyCodeToName[code] isnt null
+    console.log code
     keyName = keyCodeToName[code]
+    console.log keyName
     keys[keyName] = false
+    if MOMENTUM_ENABLED isnt true and keyName isnt 'fire'
+      sendStopMovementInput 0
