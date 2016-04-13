@@ -9,7 +9,6 @@ MapGenerator = require './map_generator.coffee'
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
 BULLET_LIFESPAN = 3000 # number of milliseconds
-DISTANCE_OFFSET = 5
 BULLET_VELOCITY = 200
 TRIANGLE_HALF_WIDTH = 15
 
@@ -172,14 +171,11 @@ class Main extends Phaser.State
     # bullet.children[0] contains the graphic for the bullet
     bullet.children[0].tint = util.formatColor(player.getColor())
     bullet.tint = player.getColor()
-    offsetX = Math.cos(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
-    offsetY = Math.sin(playerSprite.rotation) * (2 * TRIANGLE_HALF_WIDTH + DISTANCE_OFFSET)
-    bullet.reset(playerSprite.x + offsetX, playerSprite.y + offsetY)
+    bullet.reset(playerSprite.x, playerSprite.y)
     bullet.body.bounce.x = 1
     bullet.body.bounce.y = 1
     bullet.lifespan = BULLET_LIFESPAN
-    # bullet.body.width = TRIANGLE_HALF_WIDTH * 2
-    # bullet.body.height = TRIANGLE_HALF_WIDTH * 2
+    bullet.bounces = 0
 
     @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
         BULLET_VELOCITY, bullet.body.velocity)
