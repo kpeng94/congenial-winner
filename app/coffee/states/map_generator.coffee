@@ -1,4 +1,7 @@
 Phaser = require 'Phaser'
+config = require '../config.coffee'
+
+BORDER_WALL_SIZE = 4
 
 class MapGenerator
 
@@ -16,6 +19,7 @@ class MapGenerator
     for i in [end..0]
       walls.add( @create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]) )
 
+    @addBorderWalls(game, walls)
     return walls
 
   create_wall_sprite: (game, x, y, width, height) ->
@@ -48,5 +52,18 @@ class MapGenerator
     sprite.enableBody = true
 
     return sprite
+
+  addBorderWalls: (game, walls) ->
+    # Walls for the border: top, left, bottom, right
+    borderXList = [config.width / 2, BORDER_WALL_SIZE / 2,
+                   config.width / 2, config.width - BORDER_WALL_SIZE / 2]
+    borderYList = [BORDER_WALL_SIZE / 2, config.height / 2,
+                   config.height - BORDER_WALL_SIZE / 2, config.height / 2]
+    borderWidthList = [config.width, BORDER_WALL_SIZE, config.width, BORDER_WALL_SIZE]
+    borderHeightList = [BORDER_WALL_SIZE, config.height, BORDER_WALL_SIZE, config.height]
+
+    for i in [0...borderXList.length]
+      walls.add(@create_wall_sprite(game, borderXList[i], borderYList[i],
+                                    borderWidthList[i], borderHeightList[i]))
 
 module.exports = MapGenerator
