@@ -1,5 +1,5 @@
 Phaser = require 'Phaser'
-Util = require '../util/util.coffee'
+Util = require '../../../util/util.coffee'
 
 TRIANGLE_HALF_WIDTH = 15
 

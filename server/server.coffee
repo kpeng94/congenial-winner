@@ -1,10 +1,12 @@
-Scoreboard = require('./scoreboard.coffee')
-controllerRoom = "controllerRoom"
-bigScreenRoom = "bigScreenRoom"
+Scoreboard = require './scoreboard.coffee'
+TeamGenerator = require './team_generator.coffee'
+controllerRoom = 'controllerRoom'
+bigScreenRoom = 'bigScreenRoom'
 
 # Current game state contains each of the players and their player data.
 currentGameState = {};
 scoreboard = new Scoreboard
+teamGenerator = new TeamGenerator
 
 server = (io) ->
   numPlayers = 0

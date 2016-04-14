@@ -1,5 +1,5 @@
 config      = require '../config.coffee'
-Util        = require '../util/util.coffee'
+Util        = require '../../../util/util.coffee'
 
 previousFireTime = 0
 RELOAD_TIME = 340

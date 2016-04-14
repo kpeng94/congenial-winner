@@ -4,7 +4,7 @@ MapGenerator    = require '../util/map_generator.coffee'
 Phaser          = require 'Phaser'
 Player          = require '../sprites/player.coffee'
 Socket          = require '../util/socket.coffee'
-Util            = require '../util/util.coffee'
+Util            = require '../../../util/util.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100

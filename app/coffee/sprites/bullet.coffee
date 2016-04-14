@@ -1,5 +1,5 @@
 Phaser = require 'Phaser'
-Util = require '../util/util.coffee'
+Util = require '../../../util/util.coffee'
 
 BULLET_OPACITY = 0.5
 BULLET_RADIUS = 4
