@@ -7,15 +7,18 @@ keyCodeToName = {32: 'fire', 37: 'left', 38: 'up', 39: 'right', 40: 'down'}
 keysDown = [] # List of key down presses.
 socket = io()
 util = new Util
-playerColor = util.generateRandomColor()
 
 _sendInitialPlayerData = ->
   initialX = util.getRandomInt(0, config.width)
   initialY = util.getRandomInt(0, config.height)
   initialLocation = {x: initialX, y: initialY}
-  playerData = {playerLocation: initialLocation, playerColor: playerColor}
+  playerData = {playerLocation: initialLocation}
   console.log(playerData)
   socket.emit('addPlayer', playerData)
+  # Receive the player's color and render it onto the controller's screen
+  socket.on 'playerColor', (input) ->
+    playerColor = input
+    $('#container').css('background-color', playerColor)
 
 '''
 Send controller input to the server
@@ -35,9 +38,6 @@ _sendFireInput = ->
     socket.emit('fire')
 
 _sendInitialPlayerData()
-
-# Render something on the screen for the controller
-$('#container').css('background-color', playerColor)
 
 '''
 Respond to key events
