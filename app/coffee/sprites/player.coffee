@@ -1,16 +1,17 @@
 Phaser = require 'Phaser'
-Util = require '../util.coffee'
+Util = require '../util/util.coffee'
 
 TRIANGLE_HALF_WIDTH = 15
 
 util = new Util
 
-class Player
-  constructor: (@game, @color) ->
-    console.log 'Constructing player'
-    @sprite = null
+class Player extends Phaser.Sprite
+  constructor: (@game, color, playerLocation) ->
+    super(@game)
+    @color = color
+    @_constructSprite(playerLocation)
 
-  constructSprite: (playerLocation) ->
+  _constructSprite: (playerLocation) ->
     # Create the graphics for the player
     graphics = @game.add.graphics 0, 0
     graphics.lineStyle 3, util.formatColor(@color)
@@ -20,21 +21,13 @@ class Player
     graphics.lineTo -TRIANGLE_HALF_WIDTH, TRIANGLE_HALF_WIDTH
     graphics.lineTo TRIANGLE_HALF_WIDTH, 0
     window.graphics = graphics
+    @.addChild graphics
+    @.anchor.x = 0.5
+    @.anchor.y = 0.5
 
-    # Make a sprite for the player
-    @sprite = @game.add.sprite playerLocation.x, playerLocation.y
-    @sprite.addChild graphics
-    @sprite.anchor.x = 0.5
-    @sprite.anchor.y = 0.5
-    @game.physics.enable(@sprite)
-    @sprite.body.collideWorldBounds = true
-    @sprite.tint = @color
-    return @sprite
-
-  getSprite: ->
-    return @sprite
-
-  getColor: ->
-    return @color
+    @game.physics.enable(@)
+    @.body.collideWorldBounds = true
+    @.reset(playerLocation.x, playerLocation.y)
+    return @
 
 module.exports = Player

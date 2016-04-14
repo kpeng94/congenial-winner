@@ -4,9 +4,7 @@ config = require '../config.coffee'
 BORDER_WALL_SIZE = 4
 
 class MapGenerator
-
   generateMap1: (game) ->
-    console.log 'Map 1 generated'
     walls = game.add.group()
     walls.enableBody = true
 
@@ -17,12 +15,12 @@ class MapGenerator
 
     end = xList.length - 1
     for i in [end..0]
-      walls.add( @create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]) )
+      walls.add( @_create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]) )
 
-    @addBorderWalls(game, walls)
+    @_addBorderWalls(game, walls)
     return walls
 
-  create_wall_sprite: (game, x, y, width, height) ->
+  _create_wall_sprite: (game, x, y, width, height) ->
     # Compute that left, right, top and bottom coordinates
     # relative to the center of our wall (which is a rectangle
     # centered at (x, y)).
@@ -53,7 +51,7 @@ class MapGenerator
 
     return sprite
 
-  addBorderWalls: (game, walls) ->
+  _addBorderWalls: (game, walls) ->
     # Walls for the border: top, left, bottom, right
     borderXList = [config.width / 2, BORDER_WALL_SIZE / 2,
                    config.width / 2, config.width - BORDER_WALL_SIZE / 2]
@@ -63,7 +61,7 @@ class MapGenerator
     borderHeightList = [BORDER_WALL_SIZE, config.height, BORDER_WALL_SIZE, config.height]
 
     for i in [0...borderXList.length]
-      walls.add(@create_wall_sprite(game, borderXList[i], borderYList[i],
+      walls.add(@_create_wall_sprite(game, borderXList[i], borderYList[i],
                                     borderWidthList[i], borderHeightList[i]))
 
 module.exports = MapGenerator
