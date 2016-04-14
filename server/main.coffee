@@ -7,8 +7,8 @@ port = process.env.PORT or '3001'
 app.set 'port', port
 app.use express.static(path.join(__dirname, '../dist'))
 
-http = require 'http';
-server = http.createServer(app);
+http = require 'http'
+server = http.createServer(app)
 socketio = require 'socket.io'
 io = socketio(server)
 runGameServer = require './server.coffee'

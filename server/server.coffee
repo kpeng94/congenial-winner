@@ -4,7 +4,7 @@ controllerRoom = 'controllerRoom'
 bigScreenRoom = 'bigScreenRoom'
 
 # Current game state contains each of the players and their player data.
-currentGameState = {};
+currentGameState = {}
 scoreboard = new Scoreboard
 teamGenerator = new TeamGenerator
 
@@ -13,29 +13,29 @@ server = (io) ->
   io.on 'connection', (socket) ->
     isPlayer = false # All controllers represent players, but big screen does not.
     console.log('connection detected')
-    socket.on 'addBigScreen', () ->
+    socket.on 'addBigScreen', ->
       socket.join(bigScreenRoom)
 
     socket.on 'addPlayer', (playerData) ->
       isPlayer = true
       socket.playerData = playerData
       currentGameState[socket.id] = playerData
-      console.log("initialPlayerData")
+      console.log('initialPlayerData')
       console.log(socket.playerData)
       numPlayers++
       io.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
 
     # Have the server relay controller input to the big room
     socket.on 'rotate', (input) ->
-      io.to(bigScreenRoom).emit('rotate', { input: input, playerColor: socket.playerData.playerColor })
+      io.to(bigScreenRoom).emit('rotate', {input: input, playerColor: socket.playerData.playerColor})
 
     socket.on 'move', (input) ->
-      io.to(bigScreenRoom).emit('move', { input: input, playerColor: socket.playerData.playerColor })
+      io.to(bigScreenRoom).emit('move', {input: input, playerColor: socket.playerData.playerColor})
 
-    socket.on 'fire', () ->
-      io.to(bigScreenRoom).emit('fire', { playerColor: socket.playerData.playerColor })
+    socket.on 'fire', ->
+      io.to(bigScreenRoom).emit('fire', {playerColor: socket.playerData.playerColor})
 
-    socket.on 'disconnect', () ->
+    socket.on 'disconnect', ->
       if isPlayer
         numPlayers--
         currentGameState[socket.id] = null
