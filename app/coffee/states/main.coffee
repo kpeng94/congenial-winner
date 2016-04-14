@@ -131,7 +131,7 @@ class Main extends Phaser.State
     if bulletHasHitWall or bulletNotOwnedByPlayer
       bullet.kill()
       @_resetSpriteToRandomValidLocation player
-      socket.emit('hit-player', collisionData)
+      @socket.emit('hit-player', collisionData)
 
   _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
@@ -149,7 +149,7 @@ class Main extends Phaser.State
     console.log('Setting player to a random location not lying within walls')
 
     @_resetSpriteToRandomLocation(sprite)
-    while @_spriteOverlapsWithOtherPlayers(sprite) or @_spriteOverlapsWithOtherPlayers(sprite)
+    while @_spriteOverlapsWithWalls(sprite) or @_spriteOverlapsWithOtherPlayers(sprite)
       console.log('Player is overlapping with the walls, reset location')
       @_resetSpriteToRandomLocation(sprite)
 
