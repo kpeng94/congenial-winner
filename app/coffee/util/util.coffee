@@ -1,3 +1,5 @@
+# General utilities that there are not enough of to belong elsewhere
+
 class Util
   getRandomInt: (min, max) ->
     Math.floor(Math.random() * (max - min)) + min

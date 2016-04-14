@@ -1,26 +1,20 @@
-Phaser = require 'Phaser'
-
-Bullet = require '../sprites/bullet.coffee'
-Player = require '../sprites/player.coffee'
-Util = require '../util.coffee'
-config = require '../config.coffee'
-MapGenerator = require './map_generator.coffee'
+config          = require '../config.coffee'
+Bullet          = require '../sprites/bullet.coffee'
+MapGenerator    = require '../util/map_generator.coffee'
+Phaser          = require 'Phaser'
+Player          = require '../sprites/player.coffee'
+Socket          = require '../util/socket.coffee'
+Util            = require '../util/util.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
 BULLET_LIFESPAN = 3000 # number of milliseconds
 BULLET_VELOCITY = 200
-TRIANGLE_HALF_WIDTH = 15
 PLAYER_SPEED = 100
 
-socket = io()
-playerStates = {}
-socket.emit('addBigScreen')
-util = new Util
-mapGenerator = new MapGenerator
+util = new Util()
+mapGenerator = new MapGenerator()
 
-# On player connection,
-# we want to add a
 class Main extends Phaser.State
   constructor: ->
     super()
@@ -28,100 +22,23 @@ class Main extends Phaser.State
     @playersGroup = null
     @bullets = null
     @walls = null
+    @socket = (new Socket).getSocket()
 
   preload: ->
     @game.stage.disableVisibilityChange = true
-    socket.on 'update-score', (data) ->
-      $('#scoretable').empty()
-      for playerColor, score of data
-        row = $('<tr />)')
-        styles = {'background-color': playerColor, 'width': '20px', 'height': '20px'}
-        leftcell = $('<td />').css(styles)
-        rightcell = $('<td />').html(score)
-        row.append(leftcell)
-        row.append(rightcell)
-        $('#scoretable').append(row)
-
-    console.log 'Main state done preloading'
 
   create: ->
-    self = @
-    @game.stage.backgroundColor = '#EEEEEE'
+    @game.stage.backgroundColor = config.backgroundColor
     @game.physics.startSystem(Phaser.Physics.ARCADE)
 
     # Create the level for the game
     @walls = mapGenerator.generateMap1 @game
     @walls.enableBody = true
 
-    # TODO (kpeng94): where is best place to put these?
-    '''
-    Set up handlers for when players join / leave
-    '''
-    socket.on 'player joined', (data) ->
-      console.log 'player joined'
-      console.log data
-      playerColor = data.playerData.playerColor
-      playerLocation = data.playerData.playerLocation
-      if playerColor not of self.players
-        player = new Player(self.game, playerColor)
-        playerSprite = player.constructSprite(playerLocation)
-        self.players[playerColor] = player
-        self.playersGroup.add(playerSprite)
+    # Set up sockets
+    @_setupSockets()
 
-    socket.on 'player left', (data) ->
-      console.log 'player left'
-      console.log data
-      playerColor = data.playerData.playerColor
-      if playerColor of self.players
-        player = self.players[playerColor]
-        playerSprite = player.getSprite()
-        playerSprite.destroy()
-        self.playersGroup.remove(playerSprite)
-        delete self.players[playerColor]
-      console.log self.players
-
-    socket.on 'rotate', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      input = 8 * data.input
-      playerSprite.angle += input #TODO: tweak
-
-    socket.on 'moveVertically', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      input = PLAYER_SPEED * data.input
-      #playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
-      #playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
-      playerSprite.body.velocity.y = input
-
-    socket.on 'moveHorizontally', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      input = PLAYER_SPEED * data.input
-      playerSprite.body.velocity.x = input
-
-    socket.on 'moveStop', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      playerSprite.body.velocity.x = 0
-      playerSprite.body.velocity.y = 0
-
-    socket.on 'fire', (data) ->
-      console.log('Fire')
-      console.log(data)
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      self.fire(player)
-
-    socket.on 'update', (data) ->
-      playerStates = data
-      console.log playerStates
-
+    # Set up player groups
     @playersGroup = @game.add.group()
     @playersGroup.enableBody = true
     @playersGroup.physicsBodyType = Phaser.Physics.ARCADE
@@ -131,14 +48,9 @@ class Main extends Phaser.State
     @bullets = @game.add.group()
     @bullets.enableBody = true
     @bullets.physicsBodyType = Phaser.Physics.ARCADE
-
     for i in [0...GLOBAL_NUMBER_OF_BULLETS]
       bullet = new Bullet(@game)
-      @bullets.add(bullet.constructSprite())
-    @bullets.setAll('anchor.x', 0.5)
-    @bullets.setAll('anchor.y', 0.5)
-    @bullets.setAll('outOfBoundsKill', true)
-    @bullets.setAll('checkWorldBounds', true)
+      @bullets.add(bullet)
 
     console.log 'Main state created'
 
@@ -147,10 +59,10 @@ class Main extends Phaser.State
       player.body.acceleration.x = -player.body.velocity.x * 0.25
       player.body.acceleration.y = -player.body.velocity.y * 0.25
 
-    @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
+    @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
     @game.physics.arcade.collide(@playersGroup)
-    @game.physics.arcade.collide(@walls, @bullets, @bulletWallCollision)
+    @game.physics.arcade.collide(@walls, @bullets, @_bulletWallCollision)
 
   render: ->
     #for wall in @walls.children
@@ -161,44 +73,88 @@ class Main extends Phaser.State
     # for bullet in @bullets.children
       # @game.debug.body(bullet)
 
-  bulletWallCollision: (wall, bullet) ->
+  _setupSockets: ->
+    '''
+    Set up handlers for when players join / leave
+    '''
+    @socket.on 'player joined', (data) =>
+      console.log 'player joined'
+      console.log data
+      playerColor = data.playerData.playerColor
+      playerLocation = data.playerData.playerLocation
+      if playerColor not of @players
+        player = new Player(@game, playerColor, playerLocation)
+        @players[playerColor] = player
+        @playersGroup.add(player)
+
+    @socket.on 'player left', (data) =>
+      console.log 'player left'
+      console.log data
+      playerColor = data.playerData.playerColor
+      if playerColor of @players
+        player = @players[playerColor]
+        player.destroy()
+        @playersGroup.remove(player)
+        delete @players[playerColor]
+
+    @socket.on 'rotate', (data) =>
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      input = 8 * data.input
+      player.angle += input #TODO(denisli): tweak
+
+    @socket.on 'moveVertically', (data) =>
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      input = PLAYER_SPEED * data.input
+      player.body.velocity.y = input
+
+    @socket.on 'moveHorizontally', (data) =>
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      input = PLAYER_SPEED * data.input
+      player.body.velocity.x = input
+
+    @socket.on 'moveStop', (data) =>
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      player.body.velocity.x = 0
+      player.body.velocity.y = 0
+
+    @socket.on 'fire', (data) =>
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      @_fire(player)
+
+  _bulletWallCollision: (wall, bullet) ->
     if bullet.bounces?
-      bullet.bounces += 1
+      bullet.bounces++
     else
       bullet.bounces = 1
 
-  # Player = playerSprite
-  hitPlayer: (player, bullet) ->
-    collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
+  _playerBulletCollision: (player, bullet) =>
+    collisionData = {shooter: bullet.owner.toString(16), target: player.color.toString(16)}
 
     bulletHasHitWall = bullet.bounces? and bullet.bounces >= 1
-    bulletNotOwnedByPlayer = bullet.tint isnt player.tint
+    bulletNotOwnedByPlayer = bullet.owner isnt player.color
 
     # If the bullet bounced off some wall, the bullet should be able to kill any player
-    # Otherwise, the bullet should only be able to hit other players
+    # Otherwise, the bullet should only be able to hit OTHER players
     if bulletHasHitWall or bulletNotOwnedByPlayer
       bullet.kill()
       player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
-      socket.emit('hit-player', collisionData)
+      @socket.emit('hit-player', collisionData)
 
-  fire: (player) ->
-    playerSprite = player.getSprite()
+  _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
     # bullet.children[0] contains the graphic for the bullet
-    bullet.children[0].tint = util.formatColor(player.getColor())
-    bullet.tint = player.getColor()
-    bullet.reset(playerSprite.x, playerSprite.y)
-    bullet.body.bounce.x = 1
-    bullet.body.bounce.y = 1
+    bullet.children[0].tint = util.formatColor(player.color)
+    bullet.owner = player.color
+    bullet.reset(player.x, player.y)
     bullet.lifespan = BULLET_LIFESPAN
     bullet.bounces = 0
 
-    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+    @game.physics.arcade.velocityFromRotation(player.rotation,
         BULLET_VELOCITY, bullet.body.velocity)
-
-    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
-        BULLET_VELOCITY, bullet.body.velocity)
-
-
 
 module.exports = Main
