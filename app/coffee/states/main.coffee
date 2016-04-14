@@ -149,7 +149,7 @@ class Main extends Phaser.State
     console.log('Setting player to a random location not lying within walls')
 
     @_resetSpriteToRandomLocation(sprite)
-    while @_spriteOverlapsWithWalls(sprite)
+    while @_spriteOverlapsWithOtherPlayers(sprite) or @_spriteOverlapsWithOtherPlayers(sprite)
       console.log('Player is overlapping with the walls, reset location')
       @_resetSpriteToRandomLocation(sprite)
 
@@ -161,6 +161,16 @@ class Main extends Phaser.State
     for wall in @walls.children
       wallBodyBound = new Phaser.Rectangle(wall.body.x, wall.body.y, wall.body.width, wall.body.height)
       if Phaser.Rectangle.intersects(spriteBodyBound, wallBodyBound)
+        return true
+    return false
+
+  _spriteOverlapsWithOtherPlayers: (sprite) ->
+    spriteBodyBound = new Phaser.Rectangle(sprite.body.x, sprite.body.y, sprite.body.width, sprite.body.height)
+    for player in @playersGroup.children
+      if sprite is player # skip checking if the player is the sprite
+        continue
+      playerBodyBound = new Phaser.Rectangle(player.body.x, player.body.y, player.body.width, player.body.height)
+      if Phaser.Rectangle.intersects(spriteBodyBound, playerBodyBound)
         return true
     return false
 
