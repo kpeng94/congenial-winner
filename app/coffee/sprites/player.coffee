@@ -6,12 +6,12 @@ TRIANGLE_HALF_WIDTH = 15
 util = new Util
 
 class Player extends Phaser.Sprite
-  constructor: (@game, color, playerLocation) ->
+  constructor: (@game, color) ->
     super(@game)
     @color = color
-    @_constructSprite(playerLocation)
+    @_constructSprite()
 
-  _constructSprite: (playerLocation) ->
+  _constructSprite: ->
     # Create the graphics for the player
     graphics = @game.add.graphics 0, 0
     graphics.lineStyle 3, util.formatColor(@color)
@@ -27,7 +27,10 @@ class Player extends Phaser.Sprite
 
     @game.physics.enable(@)
     @.body.collideWorldBounds = true
-    @.reset(playerLocation.x, playerLocation.y)
+    @.enableBody = true
     return @
+
+  getColor: ->
+    return @color
 
 module.exports = Player
