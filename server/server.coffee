@@ -5,8 +5,6 @@ colorAllocator = new ColorAllocator()
 controllerRoom = "controllerRoom"
 bigScreenRoom = "bigScreenRoom"
 
-# Current game state contains each of the players and their player data.
-currentGameState = {};
 scoreboard = new Scoreboard
 
 server = (io) ->
@@ -17,17 +15,14 @@ server = (io) ->
     socket.on 'addBigScreen', () ->
       socket.join(bigScreenRoom)
 
-    socket.on 'addPlayer', (playerData) ->
+    socket.on 'addPlayer', () ->
       isPlayer = true
       playerColor = colorAllocator.allocateColor()
-      playerData.playerColor = playerColor
       socket.playerColor = playerColor
-      currentGameState[socket.id] = playerData
-      console.log("initialPlayerData")
-      console.log(playerData)
       numPlayers++
       socket.emit('playerColor', playerColor)
-      io.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
+      io.to(bigScreenRoom).emit('player joined', playerColor)
+      console.log('Added new player with color ' + playerColor)
 
     # Have the server relay controller input to the big room
     socket.on 'rotate', (input) ->
@@ -43,10 +38,7 @@ server = (io) ->
       if isPlayer
         numPlayers--
         colorAllocator.retrieveColor socket.playerColor
-        currentGameState[socket.id] = null
-        delete currentGameState[socket.id]
-        io.to(bigScreenRoom).emit('player left',
-          {playerColor: socket.playerColor, numPlayers: numPlayers})
+        io.to(bigScreenRoom).emit('player left', socket.playerColor)
 
     socket.on 'hit-player', (data) ->
       player = data.shooter

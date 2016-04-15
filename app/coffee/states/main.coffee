@@ -76,20 +76,16 @@ class Main extends Phaser.State
     '''
     Set up handlers for when players join / leave
     '''
-    @socket.on 'player joined', (data) =>
-      console.log 'player joined'
-      console.log data
-      playerColor = data.playerData.playerColor
+    @socket.on 'player joined', (playerColor) =>
+      console.log 'Player with color ' + playerColor + ' joined'
       if playerColor not of @players
         player = new Player(@game, playerColor)
         @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
         @playersGroup.add(player)
 
-    @socket.on 'player left', (data) =>
-      console.log 'player left'
-      console.log data
-      playerColor = data.playerColor
+    @socket.on 'player left', (playerColor) =>
+      console.log 'Player with color ' + playerColor + ' left'
       if playerColor of @players
         player = @players[playerColor]
         player.destroy()

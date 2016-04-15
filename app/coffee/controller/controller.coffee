@@ -9,12 +9,7 @@ socket = io()
 util = new Util
 
 _sendInitialPlayerData = ->
-  initialX = util.getRandomInt(0, config.width)
-  initialY = util.getRandomInt(0, config.height)
-  initialLocation = {x: initialX, y: initialY}
-  playerData = {playerLocation: initialLocation}
-  console.log(playerData)
-  socket.emit('addPlayer', playerData)
+  socket.emit('addPlayer')
   # Receive the player's color and render it onto the controller's screen
   socket.on 'playerColor', (input) ->
     playerColor = input
