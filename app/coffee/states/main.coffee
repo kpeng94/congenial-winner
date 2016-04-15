@@ -89,7 +89,7 @@ class Main extends Phaser.State
     @socket.on 'player left', (data) =>
       console.log 'player left'
       console.log data
-      playerColor = data.playerData.playerColor
+      playerColor = data.playerColor
       if playerColor of @players
         player = @players[playerColor]
         player.destroy()
