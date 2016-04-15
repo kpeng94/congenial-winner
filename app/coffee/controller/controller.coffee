@@ -69,7 +69,6 @@ $(window).keydown (event) ->
     #Gets key code name
     keyName = keyCodeToName[code]
     keys[keyName] = true
-    console.log keys
     #Fire keypress
     if keys['fire']
       sendFireInput()
@@ -91,9 +90,7 @@ $(window).keydown (event) ->
 $(window).keyup (event) ->
   code = event.keyCode
   if keyCodeToName[code] isnt null
-    console.log code
     keyName = keyCodeToName[code]
-    console.log keyName
     keys[keyName] = false
     if MOMENTUM_ENABLED isnt true and keyName isnt 'fire'
       sendStopMovementInput 0

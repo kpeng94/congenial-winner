@@ -86,22 +86,24 @@ class Main extends Phaser.State
       playerSprite = player.getSprite()
       input = 8 * data.input
       playerSprite.angle += input #TODO: tweak
+      console.log playerSprite.rotation
 
     socket.on 'moveVertically', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
       input = PLAYER_SPEED * data.input
-      #playerSprite.body.velocity.x = input * Math.cos(playerSprite.rotation)
-      #playerSprite.body.velocity.y = input * Math.sin(playerSprite.rotation)
-      playerSprite.body.velocity.y = input
-
+      playerSprite.body.velocity.x = -1 * input * Math.cos(playerSprite.rotation)
+      playerSprite.body.velocity.y = -1 * input * Math.sin(playerSprite.rotation)
+      
     socket.on 'moveHorizontally', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
       input = PLAYER_SPEED * data.input
-      playerSprite.body.velocity.x = input
+      #playerSprite.body.velocity.x = input
+      playerSprite.body.velocity.y = input * Math.cos(playerSprite.rotation)
+      playerSprite.body.velocity.x = -1 * input * Math.sin(playerSprite.rotation)
 
     socket.on 'moveStop', (data) ->
       playerColor = data.playerColor
