@@ -19,7 +19,6 @@ server = (io) ->
 
     socket.on 'addPlayer', (playerData) ->
       isPlayer = true
-      socket.playerData = playerData
       playerColor = colorAllocator.allocateColor()
       playerData.playerColor = playerColor
       socket.playerColor = playerColor
@@ -47,7 +46,7 @@ server = (io) ->
         currentGameState[socket.id] = null
         delete currentGameState[socket.id]
         io.to(bigScreenRoom).emit('player left',
-          {playerData: socket.playerData, numPlayers: numPlayers})
+          {playerColor: socket.playerColor, numPlayers: numPlayers})
 
     socket.on 'hit-player', (data) ->
       player = data.shooter
