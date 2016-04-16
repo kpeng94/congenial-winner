@@ -1,4 +1,4 @@
-config      = require '../config.coffee'
+config      = require '../../../config/config.coffee'
 Util        = require '../../../util/util.coffee'
 
 previousFireTime = 0
@@ -33,6 +33,9 @@ _sendFireInput = ->
     socket.emit('fire')
 
 _sendInitialPlayerData()
+
+socket.on 'teammates', (teammates) ->
+  console.log teammates
 
 '''
 Respond to key events

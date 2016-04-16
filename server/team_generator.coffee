@@ -14,6 +14,7 @@ class TeamGenerator
     numPlayers = players.length
     numTeammateOf = {} # Map from A to # of players who have A as a teammate
     potentialTeammates = [] # List of all players that don't already have N teammates
+    invalidTeammates = {} # Map from A to players who can't be teammates of A (due to asymmetry)
     teamGraph = {}
 
     # Initialization
@@ -27,27 +28,30 @@ class TeamGenerator
 
       # remove self
       util.removeFromArray(myPotentialTeammates, playerColor)
+      if invalidTeammates[playerColor]?
+        for invalidTeammate in invalidTeammates[playerColor]
+          util.removeFromArray(myPotentialTeammates, invalidTeammate)
 
       if myPotentialTeammates.length < numTeammates
         failed = true
         break
 
       # Select first teammate
-      index = util.getRandomInt(0, myPotentialTeammates.length)
-      teammateColor = myPotentialTeammates[index]
-      numTeammateOf[teammateColor]++
-      if numTeammateOf[teammateColor] is numTeammates
-        util.removeFromArray(potentialTeammates, teammateColor)
-      util.removeFromArray(myPotentialTeammates, teammateColor)
-      teamGraph[playerColor] = [teammateColor]
-
-      # Select second teammate
-      index = util.getRandomInt(0, myPotentialTeammates.length)
-      teammateColor = myPotentialTeammates[index]
-      numTeammateOf[teammateColor]++
-      if numTeammateOf[teammateColor] is numTeammates
-        util.removeFromArray(potentialTeammates, teammateColor)
-      teamGraph[playerColor].push(teammateColor)
+      for i in [0...numTeammates]
+        index = util.getRandomInt(0, myPotentialTeammates.length)
+        teammateColor = myPotentialTeammates[index]
+        numTeammateOf[teammateColor]++
+        if numTeammateOf[teammateColor] is numTeammates
+          util.removeFromArray(potentialTeammates, teammateColor)
+        util.removeFromArray(myPotentialTeammates, teammateColor)
+        if teamGraph[playerColor]?
+          teamGraph[playerColor].push(teammateColor)
+        else
+          teamGraph[playerColor] = [teammateColor]
+        if invalidTeammates[teammateColor]?
+          invalidTeammates[teammateColor].push(playerColor)
+        else
+          invalidTeammates[teammateColor] = [playerColor]
 
     if failed
       # If graph did not satisfy conditions, do it again

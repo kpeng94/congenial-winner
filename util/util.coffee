@@ -20,4 +20,7 @@ class Util
     if elementIndex > -1
       array.splice(elementIndex, 1)
 
+  getDictLength: (dict) ->
+    return Object.keys(dict).length
+
 module.exports = Util

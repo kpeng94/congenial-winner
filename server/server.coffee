@@ -9,11 +9,10 @@ colorAllocator = new ColorAllocator()
 controllerRoom = 'controllerRoom'
 bigScreenRoom = 'bigScreenRoom'
 
-# Current game state contains each of the players and their player data.
-currentGameState = {}
+players = []
+playerToSocket = {}
 
 server = (io) ->
-  numPlayers = 0
   io.on 'connection', (socket) ->
     isPlayer = false # All controllers represent players, but big screen does not.
     console.log('connection detected')
@@ -24,10 +23,17 @@ server = (io) ->
       isPlayer = true
       playerColor = colorAllocator.allocateColor()
       socket.playerColor = playerColor
-      numPlayers++
+      players.push(playerColor)
       socket.emit('playerColor', playerColor)
       io.to(bigScreenRoom).emit('player joined', playerColor)
+      playerToSocket[playerColor] = socket
       console.log('Added new player with color ' + playerColor)
+
+    socket.on 'startGame', ->
+      teams = teamGenerator.constructRandomTeams(players, 1)
+      scoreboard.setTeams(teams)
+      for player, teammates of teams
+        playerToSocket[player].emit('teammates', teammates)
 
     # Have the server relay controller input to the big room
     socket.on 'rotate', (input) ->
@@ -41,14 +47,14 @@ server = (io) ->
 
     socket.on 'disconnect', ->
       if isPlayer
-        numPlayers--
         colorAllocator.retrieveColor socket.playerColor
         io.to(bigScreenRoom).emit('player left', socket.playerColor)
 
     socket.on 'hit-player', (data) ->
       player = data.shooter
       target = data.target
-      scores = scoreboard.processHit(player, target)
-      io.to(bigScreenRoom).emit('update-score', scores)
+      playerScores = scoreboard.processHit(player, target)
+      teamScores = scoreboard.updateTeamScores()
+      io.to(bigScreenRoom).emit('update-score', {playerScores: playerScores, teamScores: teamScores})
 
 module.exports = server
