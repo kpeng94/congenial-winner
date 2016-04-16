@@ -1,12 +1,16 @@
 Scoreboard = require './scoreboard.coffee'
 TeamGenerator = require './team_generator.coffee'
+ColorAllocator = require './color_allocator.coffee'
+
+scoreboard = new Scoreboard
+teamGenerator = new TeamGenerator
+colorAllocator = new ColorAllocator()
+
 controllerRoom = 'controllerRoom'
 bigScreenRoom = 'bigScreenRoom'
 
 # Current game state contains each of the players and their player data.
 currentGameState = {}
-scoreboard = new Scoreboard
-teamGenerator = new TeamGenerator
 
 server = (io) ->
   numPlayers = 0
@@ -16,32 +20,30 @@ server = (io) ->
     socket.on 'addBigScreen', ->
       socket.join(bigScreenRoom)
 
-    socket.on 'addPlayer', (playerData) ->
+    socket.on 'addPlayer', ->
       isPlayer = true
-      socket.playerData = playerData
-      currentGameState[socket.id] = playerData
-      console.log('initialPlayerData')
-      console.log(socket.playerData)
+      playerColor = colorAllocator.allocateColor()
+      socket.playerColor = playerColor
       numPlayers++
-      io.to(bigScreenRoom).emit('player joined', {playerData: playerData, numPlayers: numPlayers})
+      socket.emit('playerColor', playerColor)
+      io.to(bigScreenRoom).emit('player joined', playerColor)
+      console.log('Added new player with color ' + playerColor)
 
     # Have the server relay controller input to the big room
     socket.on 'rotate', (input) ->
-      io.to(bigScreenRoom).emit('rotate', {input: input, playerColor: socket.playerData.playerColor})
+      io.to(bigScreenRoom).emit('rotate', {input: input, playerColor: socket.playerColor})
 
     socket.on 'move', (input) ->
-      io.to(bigScreenRoom).emit('move', {input: input, playerColor: socket.playerData.playerColor})
+      io.to(bigScreenRoom).emit('move', {input: input, playerColor: socket.playerColor})
 
     socket.on 'fire', ->
-      io.to(bigScreenRoom).emit('fire', {playerColor: socket.playerData.playerColor})
+      io.to(bigScreenRoom).emit('fire', {playerColor: socket.playerColor})
 
     socket.on 'disconnect', ->
       if isPlayer
         numPlayers--
-        currentGameState[socket.id] = null
-        delete currentGameState[socket.id]
-        io.to(bigScreenRoom).emit('player left',
-          {playerData: socket.playerData, numPlayers: numPlayers})
+        colorAllocator.retrieveColor socket.playerColor
+        io.to(bigScreenRoom).emit('player left', socket.playerColor)
 
     socket.on 'hit-player', (data) ->
       player = data.shooter

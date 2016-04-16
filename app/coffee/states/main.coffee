@@ -22,6 +22,7 @@ class Main extends Phaser.State
     @bullets = null
     @walls = null
     @socket = (new Socket).getSocket()
+    @gameStarted = false
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -64,11 +65,11 @@ class Main extends Phaser.State
     @game.physics.arcade.collide(@walls, @bullets, @_bulletWallCollision)
 
   render: ->
-    #for wall in @walls.children
-    #  @game.debug.body(wall)
+    # for wall in @walls.children
+    #   @game.debug.body(wall)
     # @game.debug.body(@playersGroup)
-    #for player in @playersGroup.children
-    #  @game.debug.body(player)
+    # for player in @playersGroup.children
+    #   @game.debug.body(player)
     # for bullet in @bullets.children
       # @game.debug.body(bullet)
 
@@ -76,20 +77,16 @@ class Main extends Phaser.State
     '''
     Set up handlers for when players join / leave
     '''
-    @socket.on 'player joined', (data) =>
-      console.log 'player joined'
-      console.log data
-      playerColor = data.playerData.playerColor
-      playerLocation = data.playerData.playerLocation
+    @socket.on 'player joined', (playerColor) =>
+      console.log 'Player with color ' + playerColor + ' joined'
       if playerColor not of @players
-        player = new Player(@game, playerColor, playerLocation)
+        player = new Player(@game, playerColor)
+        @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
         @playersGroup.add(player)
 
-    @socket.on 'player left', (data) =>
-      console.log 'player left'
-      console.log data
-      playerColor = data.playerData.playerColor
+    @socket.on 'player left', (playerColor) =>
+      console.log 'Player with color ' + playerColor + ' left'
       if playerColor of @players
         player = @players[playerColor]
         player.destroy()
@@ -130,7 +127,7 @@ class Main extends Phaser.State
     # Otherwise, the bullet should only be able to hit OTHER players
     if bulletHasHitWall or bulletNotOwnedByPlayer
       bullet.kill()
-      player.reset(util.getRandomInt(0, config.width), util.getRandomInt(0, config.height))
+      @_resetSpriteToRandomValidLocation player
       @socket.emit('hit-player', collisionData)
 
   _fire: (player) ->
@@ -144,5 +141,34 @@ class Main extends Phaser.State
 
     @game.physics.arcade.velocityFromRotation(player.rotation,
         BULLET_VELOCITY, bullet.body.velocity)
+
+  _resetSpriteToRandomValidLocation: (sprite) ->
+    console.log('Setting player to a random location not lying within walls')
+
+    @_resetSpriteToRandomLocation(sprite)
+    while @_spriteOverlapsWithWalls(sprite) or @_spriteOverlapsWithOtherPlayers(sprite)
+      console.log('Player is overlapping with the walls, reset location')
+      @_resetSpriteToRandomLocation(sprite)
+
+  _resetSpriteToRandomLocation: (sprite) ->
+    sprite.reset( util.getRandomInt(0, config.width), util.getRandomInt(0, config.height) )
+
+  _spriteOverlapsWithWalls: (sprite) ->
+    spriteBodyBound = new Phaser.Rectangle(sprite.body.x, sprite.body.y, sprite.body.width, sprite.body.height)
+    for wall in @walls.children
+      wallBodyBound = new Phaser.Rectangle(wall.body.x, wall.body.y, wall.body.width, wall.body.height)
+      if Phaser.Rectangle.intersects(spriteBodyBound, wallBodyBound)
+        return true
+    return false
+
+  _spriteOverlapsWithOtherPlayers: (sprite) ->
+    spriteBodyBound = new Phaser.Rectangle(sprite.body.x, sprite.body.y, sprite.body.width, sprite.body.height)
+    for player in @playersGroup.children
+      if sprite is player # skip checking if the player is the sprite
+        continue
+      playerBodyBound = new Phaser.Rectangle(player.body.x, player.body.y, player.body.width, player.body.height)
+      if Phaser.Rectangle.intersects(spriteBodyBound, playerBodyBound)
+        return true
+    return false
 
 module.exports = Main
