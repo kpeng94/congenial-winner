@@ -35,6 +35,11 @@ _sendFireInput = ->
 _sendInitialPlayerData()
 
 socket.on 'teammates', (teammates) ->
+  for playerColor in teammates
+    styles = {'background-color': playerColor}
+    player = $('<td />').addClass('player').css(styles)
+    $('#teammates').append(player)
+
   console.log teammates
 
 '''

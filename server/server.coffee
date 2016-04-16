@@ -1,3 +1,4 @@
+config = require '../config/config.coffee'
 Scoreboard = require './scoreboard.coffee'
 TeamGenerator = require './team_generator.coffee'
 ColorAllocator = require './color_allocator.coffee'
@@ -30,7 +31,7 @@ server = (io) ->
       console.log('Added new player with color ' + playerColor)
 
     socket.on 'startGame', ->
-      teams = teamGenerator.constructRandomTeams(players, 1)
+      teams = teamGenerator.constructRandomTeams(players, config.numTeammates)
       scoreboard.setTeams(teams)
       for player, teammates of teams
         playerToSocket[player].emit('teammates', teammates)
