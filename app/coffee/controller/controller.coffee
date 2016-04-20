@@ -1,6 +1,7 @@
 config      = require '../config.coffee'
 Util        = require '../util/util.coffee'
 
+INPUT_REFRESH_RATE = 16  # milliseconds
 previousFireTime = 0
 RELOAD_TIME = 340
 keyCodeToName = {32: 'fire', 37: 'left', 38: 'up', 39: 'right', 40: 'down'}
@@ -34,6 +35,22 @@ _sendFireInput = ->
 
 _sendInitialPlayerData()
 
+sendKeys = ->
+  if keysDown['fire']
+    _sendFireInput()
+  if keysDown['left']
+    _sendRotationInput -1
+  else if keysDown['right']
+    _sendRotationInput 1
+  if keysDown['up']
+    _sendMovementInput 1
+  else if keysDown['down']
+    _sendMovementInput -1
+
+  setTimeout sendKeys, 16
+
+setTimeout sendKeys, 16
+
 '''
 Respond to key events
 '''
@@ -45,17 +62,6 @@ $(window).keydown (event) ->
     #Gets key code name
     keyName = keyCodeToName[code]
     keysDown[keyName] = true
-    console.log keysDown
-    if keysDown['fire']
-      _sendFireInput()
-    if keysDown['left']
-      _sendRotationInput -1
-    else if keysDown['right']
-      _sendRotationInput 1
-    if keysDown['up']
-      _sendMovementInput 1
-    else if keysDown['down']
-      _sendMovementInput -1
 
 $(window).keyup (event) ->
   code = event.keyCode
