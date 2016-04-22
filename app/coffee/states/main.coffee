@@ -65,8 +65,8 @@ class Main extends Phaser.State
     @game.physics.arcade.collide(@playersGroup)
     @game.physics.arcade.collide(@walls, @bullets, @_bulletWallCollision)
 
-    if @timerText?
-      @timerText.text = @timer.duration.toFixed(0) + ' ms'
+    if @timerStarted?
+      $('#timerText').text(@timer.duration.toFixed(0))
 
   render: ->
     # for wall in @walls.children
@@ -199,8 +199,7 @@ class Main extends Phaser.State
     offsetY = 8
     style = {font: '12px Arial', fill: '#000000', align: 'center'}
     @timer.add(Phaser.Timer.SECOND * config.gameLength, @_setGameOver)
-    @timerText = @game.add.text(config.width - offsetX, offsetY, '', style)
-    @timerText.anchor.setTo(0.5, 0.5)
+    @timerStarted = true
     @timer.start()
 
 module.exports = Main
