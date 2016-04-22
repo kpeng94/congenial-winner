@@ -1,5 +1,5 @@
-config      = require '../config.coffee'
-Util        = require '../util/util.coffee'
+config      = require '../../../config/config.coffee'
+Util        = require '../../../util/util.coffee'
 
 INPUT_REFRESH_RATE = 16  # milliseconds
 previousFireTime = 0
@@ -50,6 +50,14 @@ sendKeys = ->
   setTimeout sendKeys, 16
 
 setTimeout sendKeys, 16
+
+socket.on 'teammates', (teammates) ->
+  for playerColor in teammates
+    styles = {'background-color': playerColor}
+    player = $('<td />').addClass('player').css(styles)
+    $('#teammates').append(player)
+
+  console.log teammates
 
 '''
 Respond to key events

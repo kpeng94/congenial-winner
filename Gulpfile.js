@@ -27,8 +27,9 @@ var paths = {
     css: './app/css/*.styl',
     coffee: ['./app/coffee/bigscreen/bigscreen.coffee',
              './app/coffee/controller/controller.coffee'],
-    lint: './app/coffee/**/*.coffee',
-
+    lint: ['./app/coffee/**/*.coffee',
+           './server/*.coffee',
+           './util/*.coffee'],
     // Distribution paths
     dist: './dist',
     bower: './dist/js/vendors'

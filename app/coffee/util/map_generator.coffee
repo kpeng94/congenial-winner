@@ -1,5 +1,5 @@
 Phaser = require 'Phaser'
-config = require '../config.coffee'
+config = require '../../../config/config.coffee'
 
 BORDER_WALL_SIZE = 4
 

@@ -1,10 +1,10 @@
-config          = require '../config.coffee'
+config          = require '../../../config/config.coffee'
 Bullet          = require '../sprites/bullet.coffee'
 MapGenerator    = require '../util/map_generator.coffee'
 Phaser          = require 'Phaser'
 Player          = require '../sprites/player.coffee'
 Socket          = require '../util/socket.coffee'
-Util            = require '../util/util.coffee'
+Util            = require '../../../util/util.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
@@ -22,11 +22,13 @@ class Main extends Phaser.State
     @bullets = null
     @walls = null
     @socket = (new Socket).getSocket()
+    @gameStarted = false
 
   preload: ->
     @game.stage.disableVisibilityChange = true
 
   create: ->
+    @timer = @game.time.create()
     @game.stage.backgroundColor = config.backgroundColor
     @game.physics.startSystem(Phaser.Physics.ARCADE)
 
@@ -63,6 +65,9 @@ class Main extends Phaser.State
     @game.physics.arcade.collide(@playersGroup)
     @game.physics.arcade.collide(@walls, @bullets, @_bulletWallCollision)
 
+    if @timerText?
+      @timerText.text = @timer.duration.toFixed(0) + ' ms'
+
   render: ->
     # for wall in @walls.children
     #   @game.debug.body(wall)
@@ -83,6 +88,8 @@ class Main extends Phaser.State
         @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
         @playersGroup.add(player)
+        if util.getDictLength(@players) is config.numPlayers
+          @_startGame()
 
     @socket.on 'player left', (playerColor) =>
       console.log 'Player with color ' + playerColor + ' left'
@@ -127,7 +134,8 @@ class Main extends Phaser.State
     if bulletHasHitWall or bulletNotOwnedByPlayer
       bullet.kill()
       @_resetSpriteToRandomValidLocation player
-      @socket.emit('hit-player', collisionData)
+      if @gameStarted
+        @socket.emit('hit-player', collisionData)
 
   _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
@@ -169,5 +177,30 @@ class Main extends Phaser.State
       if Phaser.Rectangle.intersects(spriteBodyBound, playerBodyBound)
         return true
     return false
+
+    # TODO (kpeng94): add this in later for better visual indicators
+    # _addPendingTextOverlay: =>
+    #   style = {font: config.fontStyle, fill: config.fontColor, align: 'center'}
+    #   text = 'Waiting for additional players to join...'
+    #   @pendingText = @game.add.text(@game.world.centerX, @game.world.centerY, text, style)
+
+  _setGameOver: =>
+    @gameStarted = false
+    style = {font: config.fontStyle, fill: config.fontColor, align: 'center'}
+    text = 'Game over... check the scores'
+    @gameOverText = @game.add.text(@game.world.centerX, @game.world.centerY, text, style)
+    @gameOverText.anchor.setTo(0.5, 0.5)
+
+  # TODO (kpeng94): clean up
+  _startGame: =>
+    @gameStarted = true
+    @socket.emit('startGame')
+    offsetX = 20
+    offsetY = 8
+    style = {font: '12px Arial', fill: '#000000', align: 'center'}
+    @timer.add(Phaser.Timer.SECOND * config.gameLength, @_setGameOver)
+    @timerText = @game.add.text(config.width - offsetX, offsetY, '', style)
+    @timerText.anchor.setTo(0.5, 0.5)
+    @timer.start()
 
 module.exports = Main

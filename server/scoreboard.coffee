@@ -4,19 +4,32 @@ SELF_HIT_DECREMENT = 1
 
 class Scoreboard
   constructor: ->
-    @scores = {}
+    @playerScores = {}
+    @teamScores = {}
+
+  setTeams: (teams) ->
+    @teams = teams
 
   processHit: (player, target) ->
-    if player not of @scores
-      @scores[player] = 0
-    if target not of @scores
-      @scores[target] = 0
+    if player not of @playerScores
+      @playerScores[player] = 0
+    if target not of @playerScores
+      @playerScores[target] = 0
     if player is target
-      @scores[player] -= SELF_HIT_DECREMENT
+      @playerScores[player] -= SELF_HIT_DECREMENT
     else
-      @scores[player] += HIT_INCREMENT
-      @scores[target] -= HURT_DECREMENT
+      @playerScores[player] += HIT_INCREMENT
+      @playerScores[target] -= HURT_DECREMENT
+    return @playerScores
 
-    return @scores
+  updateTeamScores: ->
+    if @teams?
+      for player of @playerScores
+        teammates = @teams[player]
+        @teamScores[player] = @playerScores[player]
+        for teammate in teammates
+          if @playerScores[teammate]?
+            @teamScores[player] += @playerScores[teammate]
+    return @teamScores
 
 module.exports = Scoreboard

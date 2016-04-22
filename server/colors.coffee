@@ -1,4 +1,4 @@
-visuallyDistinguishableColors = [ 
+visuallyDistinguishableColors = [
   '#FF0000',
   '#0000FF',
   '#00FF00',

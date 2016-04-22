@@ -15,4 +15,12 @@ class Util
   formatColor: (color) ->
     hex = parseInt(color.replace(/^#/, ''), 16)
 
+  removeFromArray: (array, element) ->
+    elementIndex = array.indexOf(element)
+    if elementIndex > -1
+      array.splice(elementIndex, 1)
+
+  getDictLength: (dict) ->
+    return Object.keys(dict).length
+
 module.exports = Util
