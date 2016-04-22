@@ -42,13 +42,8 @@ $('#container').css('background-color', playerColor)
 sendRotationInput = (input) ->
   socket.emit('rotate', input)
 
-# input is either -1 or 1 (-1 meaning to move up and 1 to move down)
-sendVerticalMovementInput = (input) ->
-  socket.emit('moveVertically', input)
-
-# input is either -1 or 1 (-1 meaning to move left and 1 to move right)
-sendHorizontalMovementInput = (input) ->
-  socket.emit('moveHorizontally', input)
+sendMoveInput = (xInput, yInput) ->
+  socket.emit('move', xInput, yInput)
 
 # stops movement
 sendStopMovementInput = (input) ->
@@ -72,6 +67,8 @@ $(window).keydown (event) ->
     #Fire keypress
     if keys['fire']
       sendFireInput()
+    xInput = 0
+    yInput = 0
     #Turning keypresses
     if keys['turn left']
       sendRotationInput -1
@@ -79,13 +76,14 @@ $(window).keydown (event) ->
       sendRotationInput 1
     #Movement keypresses
     if keys['left']
-      sendHorizontalMovementInput -1
+      xInput = -1
     else if keys['right']
-      sendHorizontalMovementInput 1
+      xInput = 1
     if keys['up']
-      sendVerticalMovementInput -1
+      yInput = -1
     else if keys['down']
-      sendVerticalMovementInput 1
+      yInput = 1
+    sendMoveInput xInput, yInput
 
 $(window).keyup (event) ->
   code = event.keyCode
