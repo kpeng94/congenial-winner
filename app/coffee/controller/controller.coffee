@@ -90,5 +90,6 @@ $(window).keyup (event) ->
   if keyCodeToName[code] isnt null
     keyName = keyCodeToName[code]
     keys[keyName] = false
-    if MOMENTUM_ENABLED isnt true and keyName isnt 'fire'
+    moving = keys['up'] or keys['down'] or keys['left'] or keys['right']
+    if MOMENTUM_ENABLED isnt true and not moving
       sendStopMovementInput 0
