@@ -56,6 +56,28 @@ sendFireInput = ->
     previousFireTime = fireTime
     socket.emit('fire')
 
+updateKeypress = ->
+  #Fire keypress
+  if keys['fire']
+    sendFireInput()
+  xInput = 0
+  yInput = 0
+  #Turning keypresses
+  if keys['turn left']
+    sendRotationInput -1
+  else if keys['turn right']
+    sendRotationInput 1
+  #Movement keypresses
+  if keys['left']
+    xInput = -1
+  else if keys['right']
+    xInput = 1
+  if keys['up']
+    yInput = -1
+  else if keys['down']
+    yInput = 1
+  sendMoveInput xInput, yInput
+
 $(window).keydown (event) ->
   #Gets the keyCode
   code = event.keyCode
@@ -64,32 +86,11 @@ $(window).keydown (event) ->
     #Gets key code name
     keyName = keyCodeToName[code]
     keys[keyName] = true
-    #Fire keypress
-    if keys['fire']
-      sendFireInput()
-    xInput = 0
-    yInput = 0
-    #Turning keypresses
-    if keys['turn left']
-      sendRotationInput -1
-    else if keys['turn right']
-      sendRotationInput 1
-    #Movement keypresses
-    if keys['left']
-      xInput = -1
-    else if keys['right']
-      xInput = 1
-    if keys['up']
-      yInput = -1
-    else if keys['down']
-      yInput = 1
-    sendMoveInput xInput, yInput
+    updateKeypress()
 
 $(window).keyup (event) ->
   code = event.keyCode
   if keyCodeToName[code] isnt null
     keyName = keyCodeToName[code]
     keys[keyName] = false
-    moving = keys['up'] or keys['down'] or keys['left'] or keys['right']
-    if MOMENTUM_ENABLED isnt true and not moving
-      sendStopMovementInput 0
+    updateKeypress()
