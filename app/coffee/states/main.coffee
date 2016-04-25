@@ -105,12 +105,14 @@ class Main extends Phaser.State
 
     @socket.on 'rotate', (data) =>
       playerColor = data.playerColor
+      @_logIfPlayerColorDoesNotExist playerColor
       player = @players[playerColor]
       input = config.PLAYER_ROTATION_DELTA * data.input
       player.angle += input #TODO(denisli): tweak
 
     @socket.on 'move', (data) =>
       playerColor = data.playerColor
+      @_logIfPlayerColorDoesNotExist playerColor
       player = @players[playerColor]
       input = config.PLAYER_MOVEMENT_DELTA * data.input
       player.body.velocity.x = input * Math.cos(player.rotation)
@@ -118,6 +120,7 @@ class Main extends Phaser.State
 
     @socket.on 'fire', (data) =>
       playerColor = data.playerColor
+      @_logIfPlayerColorDoesNotExist playerColor
       player = @players[playerColor]
       @_fire(player)
 
@@ -234,5 +237,12 @@ class Main extends Phaser.State
     @timer.add(Phaser.Timer.SECOND * config.gameLength, @_setGameOver)
     @timerStarted = true
     @timer.start()
+
+  _logIfPlayerColorDoesNotExist: (playerColor) ->
+    if playerColor is null
+      console.log('Player color is null.')
+    else if not playerColor in @players
+      console.log('The player color ' + playerColor + ' does not exist.')
+      console.log('Available color-player mappings are ' + @players)
 
 module.exports = Main
