@@ -26,7 +26,8 @@ class Player
     @sprite.addChild graphics
     @sprite.anchor.x = 0.5
     @sprite.anchor.y = 0.5
-    @game.physics.enable(@sprite)
+    #@game.physics.enable(@sprite)
+    @game.physics.p2.enable @sprite
     @sprite.body.collideWorldBounds = true
     @sprite.tint = @color
     return @sprite

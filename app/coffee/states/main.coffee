@@ -6,6 +6,9 @@ Util = require '../util.coffee'
 config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
 
+# TODO IMPORTANT
+MapLoader = require '../level_editor/map_loader.coffee'
+
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
 BULLET_LIFESPAN = 3000 # number of milliseconds
@@ -18,7 +21,6 @@ playerStates = {}
 socket.emit('addBigScreen')
 util = new Util
 mapGenerator = new MapGenerator
-
 # On player connection,
 # we want to add a
 class Main extends Phaser.State
@@ -41,18 +43,23 @@ class Main extends Phaser.State
         row.append(leftcell)
         row.append(rightcell)
         $('#scoretable').append(row)
-
+    @game.load.json 'map', 'assets/maps/exampleMap.JSON'
     console.log 'Main state done preloading'
 
   create: ->
     self = @
     @game.stage.backgroundColor = '#EEEEEE'
-    @game.physics.startSystem(Phaser.Physics.ARCADE)
+    #@game.physics.startSystem(Phaser.Physics.ARCADE)
+
+    # TODO IMPORTANT START
+    @game.physics.startSystem(Phaser.Physics.P2JS)
+    jsonWalls = @game.cache.getJSON('map')
 
     # Create the level for the game
-    @walls = mapGenerator.generateMap1 @game
+    @walls = (new MapLoader).generateMap1 @game, jsonWalls
     @walls.enableBody = true
-
+    # TODO IMPORTANT END
+    
     # TODO (kpeng94): where is best place to put these?
     '''
     Set up handlers for when players join / leave
@@ -144,9 +151,9 @@ class Main extends Phaser.State
     console.log 'Main state created'
 
   update: ->
-    for player in @playersGroup.children
-      player.body.acceleration.x = -player.body.velocity.x * 0.25
-      player.body.acceleration.y = -player.body.velocity.y * 0.25
+    #for player in @playersGroup.children
+      #player.body.acceleration.x = -player.body.velocity.x * 0.25
+      #player.body.acceleration.y = -player.body.velocity.y * 0.25
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
