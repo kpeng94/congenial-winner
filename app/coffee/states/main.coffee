@@ -102,13 +102,13 @@ class Main extends Phaser.State
     @socket.on 'rotate', (data) =>
       playerColor = data.playerColor
       player = @players[playerColor]
-      input = 8 * data.input
+      input = config.PLAYER_ROTATION_DELTA * data.input
       player.angle += input #TODO(denisli): tweak
 
     @socket.on 'move', (data) =>
       playerColor = data.playerColor
       player = @players[playerColor]
-      input = 100 * data.input
+      input = config.PLAYER_MOVEMENT_DELTA * data.input
       player.body.velocity.x = input * Math.cos(player.rotation)
       player.body.velocity.y = input * Math.sin(player.rotation)
 

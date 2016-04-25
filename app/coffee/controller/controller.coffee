@@ -52,12 +52,22 @@ sendKeys = ->
 setTimeout sendKeys, 16
 
 socket.on 'teammates', (teammates) ->
+  console.log 'teammates'
   for playerColor in teammates
     styles = {'background-color': playerColor}
     player = $('<td />').addClass('player').css(styles)
     $('#teammates').append(player)
-
   console.log teammates
+
+socket.on 'update-my-score', (score) ->
+  console.debug 'score'
+  console.debug score
+  $('#my-score').text(score)
+
+socket.on 'update-team-score', (score) ->
+  console.debug 'team-score'
+  console.debug score
+  $('#team-score').text(score)
 
 '''
 Respond to key events

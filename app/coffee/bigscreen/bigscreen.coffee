@@ -9,16 +9,16 @@ _setupSockets = ->
   # Update scoring table.
   socket.on 'update-score', (data) ->
     playerScores = data.playerScores
-    teamScores = data.teamScores
+    # teamScores = data.teamScores
     $('#scoretable').empty()
 
     # Add header row
     headerrow = $('<tr />)')
     playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
-    teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
+    # teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
     headerrow.append($('<th />'))
     headerrow.append(playerScoreText)
-    headerrow.append(teamScoreText)
+    # headerrow.append(teamScoreText)
     $('#scoretable').append(headerrow)
 
     for playerColor, playerScore of playerScores
@@ -26,10 +26,10 @@ _setupSockets = ->
       styles = {'background-color': playerColor}
       player = $('<td />').addClass('player').css(styles)
       playerScore = $('<td />').addClass('player-score').html(playerScore)
-      teamScore = $('<td />').addClass('team-score').html(teamScores[playerColor])
+      # teamScore = $('<td />').addClass('team-score').html(teamScores[playerColor])
       row.append(player)
       row.append(playerScore)
-      row.append(teamScore)
+      # row.append(teamScore)
       $('#scoretable').append(row)
 
 socket = (new Socket).getSocket()
