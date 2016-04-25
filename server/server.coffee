@@ -46,8 +46,11 @@ server = (io) ->
     socket.on 'rotate', (input) ->
       io.to(bigScreenRoom).emit('rotate', {input: input, playerColor: socket.playerColor})
 
-    socket.on 'move', (input) ->
-      io.to(bigScreenRoom).emit('move', {input: input, playerColor: socket.playerColor})
+    socket.on 'move', (xInput, yInput) ->
+      io.to(bigScreenRoom).emit('move', {xInput: xInput, yInput: yInput, playerColor: socket.playerColor})
+
+    socket.on 'moveStop', (input) ->
+      io.to(bigScreenRoom).emit('moveStop', {playerColor: socket.playerColor})
 
     socket.on 'fire', ->
       io.to(bigScreenRoom).emit('fire', {playerColor: socket.playerColor})

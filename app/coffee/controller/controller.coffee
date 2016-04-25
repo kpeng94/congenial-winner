@@ -4,7 +4,19 @@ Util        = require '../../../util/util.coffee'
 INPUT_REFRESH_RATE = 16  # milliseconds
 previousFireTime = 0
 RELOAD_TIME = 340
-keyCodeToName = {32: 'fire', 37: 'left', 38: 'up', 39: 'right', 40: 'down'}
+keyCodeToName = {
+  32: 'fire',
+  37: 'left',
+  65: 'left',
+  38: 'up',
+  87: 'up',
+  39: 'right',
+  68: 'right',
+  40: 'down',
+  83: 'down',
+  81: 'turn left',
+  69: 'turn right'
+}
 keysDown = [] # List of key down presses.
 socket = io()
 util = new Util
@@ -24,8 +36,8 @@ _sendRotationInput = (input) ->
   socket.emit('rotate', input)
 
 # input is either -1 or 1 (-1 meaning to move backwards and 1 to move forwards)
-_sendMovementInput = (input) ->
-  socket.emit('move', input)
+_sendMoveInput = (xInput, yInput) ->
+  socket.emit('move', xInput, yInput)
 
 _sendFireInput = ->
   fireTime = new Date()
@@ -38,14 +50,21 @@ _sendInitialPlayerData()
 sendKeys = ->
   if keysDown['fire']
     _sendFireInput()
-  if keysDown['left']
+  xInput = 0
+  yInput = 0
+  if keysDown['turn left']
     _sendRotationInput -1
-  else if keysDown['right']
+  else if keysDown['turn right']
     _sendRotationInput 1
+  if keysDown['left']
+    xInput = -1
+  else if keysDown['right']
+    xInput = 1
   if keysDown['up']
-    _sendMovementInput 1
+    yInput = -1
   else if keysDown['down']
-    _sendMovementInput -1
+    yInput = 1
+  _sendMoveInput(xInput, yInput)
 
   setTimeout sendKeys, 16
 

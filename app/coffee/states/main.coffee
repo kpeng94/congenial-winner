@@ -114,9 +114,19 @@ class Main extends Phaser.State
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
       player = @players[playerColor]
-      input = config.PLAYER_MOVEMENT_DELTA * data.input
-      player.body.velocity.x = input * Math.cos(player.rotation)
-      player.body.velocity.y = input * Math.sin(player.rotation)
+      xInput = config.PLAYER_MOVEMENT_DELTA * data.xInput
+      yInput = config.PLAYER_MOVEMENT_DELTA * data.yInput
+
+      player.body.velocity.x = -1 * yInput * Math.cos(player.rotation)
+      player.body.velocity.y = -1 * yInput * Math.sin(player.rotation)
+      player.body.velocity.y += xInput * Math.cos(player.rotation)
+      player.body.velocity.x += -1 * xInput * Math.sin(player.rotation)
+
+    @socket.on 'moveStop', (data) ->
+      playerColor = data.playerColor
+      player = @players[playerColor]
+      player.body.velocity.x = 0
+      player.body.velocity.y = 0
 
     @socket.on 'fire', (data) =>
       playerColor = data.playerColor
