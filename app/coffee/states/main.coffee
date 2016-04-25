@@ -95,7 +95,6 @@ class Main extends Phaser.State
       input = PLAYER_SPEED * data.input
       playerSprite.body.velocity.x = -1 * input * Math.cos(playerSprite.rotation)
       playerSprite.body.velocity.y = -1 * input * Math.sin(playerSprite.rotation)
-      
     socket.on 'moveHorizontally', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]

@@ -21,12 +21,14 @@ var paths = {
         './app/assets/**/*.*',
         './app/assets/pack.json',
         './app/controller.html',
-        './app/index.html'
+        './app/index.html',
+        './app/level_editor.html'
     ],
     app: './app',
     css: './app/css/*.styl',
     coffee: ['./app/coffee/bigscreen/bigscreen.coffee',
-             './app/coffee/controller/controller.coffee'],
+             './app/coffee/controller/controller.coffee',
+              './app/coffee/level_editor/level_editor.coffee'],
     lint: './app/coffee/**/*.coffee',
 
     // Distribution paths
