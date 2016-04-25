@@ -24,6 +24,10 @@ class Main extends Phaser.State
     @socket = (new Socket).getSocket()
     @gameStarted = false
 
+  init: (startData) ->
+    console.log(startData)
+    @level = startData.level
+
   preload: ->
     @game.stage.disableVisibilityChange = true
 
@@ -33,7 +37,7 @@ class Main extends Phaser.State
     @game.physics.startSystem(Phaser.Physics.ARCADE)
 
     # Create the level for the game
-    @walls = mapGenerator.generateMap1 @game
+    @walls = mapGenerator.generateMap(@game, @level)
     @walls.enableBody = true
 
     # Set up sockets
@@ -116,6 +120,35 @@ class Main extends Phaser.State
       playerColor = data.playerColor
       player = @players[playerColor]
       @_fire(player)
+
+    # Set up players initially
+    @socket.on 'setup-player-scores', (data) =>
+      players = data.players
+      $('#scoretable').empty()
+
+      # Add header row
+      headerrow = $('<tr />)')
+      emptyCell = $('<th />')
+      playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
+      headerrow.append(emptyCell)
+      headerrow.append(playerScoreText)
+      $('#scoretable').append(headerrow)
+
+      for playerColor in players
+        row = $('<tr />)')
+        styles = {'background-color': playerColor}
+        player = $('<td />').addClass('player').css(styles)
+        playerScore = $('<td id=' + playerColor.slice(1) + ' />').addClass('player-score').html(0)
+        row.append(player)
+        row.append(playerScore)
+        $('#scoretable').append(row)
+
+    # Update scoring table.
+    @socket.on 'update-player-score', (data) =>
+      console.log(data)
+      playerScores = data.playerScores
+      for playerColor, playerScore of playerScores
+        $(playerColor).html(playerScore)
 
   _bulletWallCollision: (wall, bullet) ->
     if bullet.bounces?

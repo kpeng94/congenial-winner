@@ -3,19 +3,29 @@ config = require '../../../config/config.coffee'
 
 BORDER_WALL_SIZE = 4
 
+LEVELS = {
+  "1": {
+    xList: [ 40, 280, 530, 1060, 930, 530, 800, 270 ],
+    yList: [ 400, 400, 530, 70, 530, 280, 200, 100 ],
+    widthList: [ 10, 10, 20, 70, 300, 100, 20, 200 ],
+    heightList: [ 100, 300, 150, 20, 20, 10, 250, 30 ],
+  }
+}
+
 class MapGenerator
-  generateMap1: (game) ->
+  generateMap: (game, level) ->
     walls = game.add.group()
     walls.enableBody = true
 
-    xList = [ 40, 280, 530, 1060, 930, 530, 800, 270 ]
-    yList = [ 400, 400, 530, 70, 530, 280, 200, 100 ]
-    widthList = [ 10, 10, 20, 70, 300, 100, 20, 200 ]
-    heightList = [ 100, 300, 150, 20, 20, 10, 250, 30 ]
+    if LEVELS[level]?
+      xList = LEVELS[level].xList;
+      yList = LEVELS[level].yList;
+      widthList = LEVELS[level].widthList;
+      heightList = LEVELS[level].heightList;
 
-    end = xList.length - 1
-    for i in [end..0]
-      walls.add( @_create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]) )
+      end = xList.length - 1
+      for i in [end..0]
+        walls.add( @_create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]))
 
     @_addBorderWalls(game, walls)
     return walls

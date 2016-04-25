@@ -1,0 +1,7 @@
+{
+  "main": [{
+    "type": "image",
+    "key": "button",
+    "url": "assets/img/button.png"
+  }]
+}

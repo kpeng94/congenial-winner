@@ -8,6 +8,7 @@ module.exports =
   numTeammates: 1
   fontStyle: '65px Arial' #TODO (kpeng94): change this
   fontColor: '#FF0000'
+  pack: 'assets/pack.json'
   gameLength: 60 # number of seconds
   PLAYER_MOVEMENT_DELTA: 100
   PLAYER_ROTATION_DELTA: 4
