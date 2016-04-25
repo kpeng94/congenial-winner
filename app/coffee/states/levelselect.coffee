@@ -1,5 +1,4 @@
 config          = require '../../../config/config.coffee'
-Button          = require '../sprites/button.coffee'
 MapGenerator    = require '../util/map_generator.coffee'
 Phaser          = require 'Phaser'
 Socket          = require '../util/socket.coffee'
