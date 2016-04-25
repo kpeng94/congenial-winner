@@ -206,7 +206,7 @@ class Main extends Phaser.State
     @timer.start()
 
   _logIfPlayerColorDoesNotExist: (playerColor) ->
-    if playerColor == null
+    if playerColor is null
       console.log('Player color is null.')
     else if not playerColor in @players
       console.log('The player color ' + playerColor + ' does not exist.')
