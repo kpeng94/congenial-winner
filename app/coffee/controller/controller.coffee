@@ -53,6 +53,7 @@ setTimeout sendKeys, 16
 
 socket.on 'teammates', (teammates) ->
   console.log 'teammates'
+  $('#teammates').html('')
   for playerColor in teammates
     styles = {'background-color': playerColor}
     player = $('<td />').addClass('player').css(styles)

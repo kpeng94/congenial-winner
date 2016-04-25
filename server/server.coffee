@@ -40,6 +40,7 @@ server = (io) ->
       scoreboard.setTeams(teams)
       for player, teammates of teams
         playerToSocket[player].emit('teammates', teammates)
+      io.to(bigScreenRoom).emit('setup-player-scores', {players: players})
 
     # Have the server relay controller input to the big room
     socket.on 'rotate', (input) ->
@@ -63,12 +64,20 @@ server = (io) ->
       targetColor = data.target
       playerScores = scoreboard.processHit(playerColor, targetColor)
       teamScores = scoreboard.updateTeamScores()
-      io.to(bigScreenRoom).emit('update-score', {playerScores: playerScores})
+      console.log(playerScores)
+
+      # Sending these scores as the only ones that should have an updated animation
+      updatedPlayerScores = {}
+      updatedPlayerScores[playerColor] = playerScores[playerColor]
+      updatedPlayerScores[targetColor] = playerScores[targetColor]
+      console.log(updatedPlayerScores)
+      io.to(bigScreenRoom).emit('update-player-score', {playerScores: updatedPlayerScores})
+
       # Update player's individual score
       playerToSocket[playerColor].emit('update-my-score', playerScores[playerColor])
+
       # Update everyone's team score. Could be done more efficiently by selecting the correct players.
       for playerColor, teammates of teams
         playerToSocket[playerColor].emit('update-team-score', teamScores[playerColor])
-
 
 module.exports = server

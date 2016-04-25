@@ -1,11 +1,21 @@
 #scoretable td.player
   width: 50px
   height: 50px
+  -webkit-animation:fade-in 1s infinite
+  -webkit-animation-delay: 0.5s
 
 #scoretable td.player-score,
 #scoretable td.team-score
   font: 20px Arial
   text-align: center
+  -webkit-animation: fade
+  -webkit-animation-duration: 2s
+  -webkit-animation-iteration-count: infinite
+  -webkit-animation-delay: 0.5s
+  animation: fade
+  animation-duration: 2s
+  animation-iteration-count: infinite
+  animation-delay: 0.5s
 
 #timer
   font: 40px Arial
@@ -16,3 +26,16 @@
 
 #game
   display: inline-block
+
+
+@css {
+  @-webkit-keyframes fade
+    0% { opacity: 1; filter:alpha(opacity=100); }
+    50% { opacity: 0; filter:alpha(opacity=0); }
+    100% { opacity: 1; filter:alpha(opacity=100); }
+
+  @keyframes fade
+    0% { opacity: 1; filter:alpha(opacity=100); }
+    50% { opacity: 0; filter:alpha(opacity=0); }
+    100% { opacity: 1; filter:alpha(opacity=100); }
+}

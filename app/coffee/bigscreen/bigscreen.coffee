@@ -6,31 +6,38 @@ Socket      = require '../util/socket.coffee'
 # TODO(kpeng94): where is the best place for this?
 # TODO(kpeng94): clean up this.
 _setupSockets = ->
-  # Update scoring table.
-  socket.on 'update-score', (data) ->
-    playerScores = data.playerScores
-    # teamScores = data.teamScores
+  # Set up players initially
+  socket.on 'setup-player-scores', (data) ->
+    players = data.players
     $('#scoretable').empty()
 
     # Add header row
     headerrow = $('<tr />)')
+    emptyCell = $('<th />')
     playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
-    # teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
-    headerrow.append($('<th />'))
+    headerrow.append(emptyCell)
     headerrow.append(playerScoreText)
-    # headerrow.append(teamScoreText)
     $('#scoretable').append(headerrow)
 
-    for playerColor, playerScore of playerScores
+    console.log('players')
+
+    console.log(players)
+    for playerColor in players
       row = $('<tr />)')
+      console.log(playerColor)
       styles = {'background-color': playerColor}
       player = $('<td />').addClass('player').css(styles)
-      playerScore = $('<td />').addClass('player-score').html(playerScore)
-      # teamScore = $('<td />').addClass('team-score').html(teamScores[playerColor])
+      playerScore = $('<td id=' + playerColor.slice(1) + ' />').addClass('player-score').html(0)
       row.append(player)
       row.append(playerScore)
-      # row.append(teamScore)
       $('#scoretable').append(row)
+
+  # Update scoring table.
+  socket.on 'update-player-score', (data) ->
+    console.log(data)
+    playerScores = data.playerScores
+    for playerColor, playerScore of playerScores
+      $(playerColor).html(playerScore)
 
 socket = (new Socket).getSocket()
 socket.emit('addBigScreen')
