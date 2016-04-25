@@ -17,7 +17,7 @@ class LevelSelect extends Phaser.State
   preload: ->
     # TODO(kpeng94): cleanup so that this uses config.pack instead
     # @load.pack('main', config.pack)
-    @game.load.image('button','assets/img/button.png');
+    @game.load.image('button', 'assets/img/button.png')
 
   create: =>
     @game.stage.backgroundColor = config.backgroundColor

@@ -122,7 +122,7 @@ class Main extends Phaser.State
       @_fire(player)
 
     # Set up players initially
-    @socket.on 'setup-player-scores', (data) =>
+    @socket.on 'setup-player-scores', (data) ->
       players = data.players
       $('#scoretable').empty()
 
@@ -144,7 +144,7 @@ class Main extends Phaser.State
         $('#scoretable').append(row)
 
     # Update scoring table.
-    @socket.on 'update-player-score', (data) =>
+    @socket.on 'update-player-score', (data) ->
       console.log(data)
       playerScores = data.playerScores
       for playerColor, playerScore of playerScores

@@ -4,7 +4,7 @@ config = require '../../../config/config.coffee'
 BORDER_WALL_SIZE = 4
 
 LEVELS = {
-  "1": {
+  '1': {
     xList: [ 40, 280, 530, 1060, 930, 530, 800, 270 ],
     yList: [ 400, 400, 530, 70, 530, 280, 200, 100 ],
     widthList: [ 10, 10, 20, 70, 300, 100, 20, 200 ],
@@ -18,10 +18,10 @@ class MapGenerator
     walls.enableBody = true
 
     if LEVELS[level]?
-      xList = LEVELS[level].xList;
-      yList = LEVELS[level].yList;
-      widthList = LEVELS[level].widthList;
-      heightList = LEVELS[level].heightList;
+      xList = LEVELS[level].xList
+      yList = LEVELS[level].yList
+      widthList = LEVELS[level].widthList
+      heightList = LEVELS[level].heightList
 
       end = xList.length - 1
       for i in [end..0]
