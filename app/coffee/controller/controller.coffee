@@ -64,6 +64,7 @@ sendKeys = ->
     yInput = -1
   else if keysDown['down']
     yInput = 1
+  # TODO(kpeng94): Is there a better way to send start / stop signals besides this?
   _sendMoveInput(xInput, yInput)
 
   setTimeout sendKeys, 16

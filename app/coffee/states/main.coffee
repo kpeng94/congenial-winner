@@ -23,6 +23,8 @@ class Main extends Phaser.State
     @walls = null
     @socket = (new Socket).getSocket()
     @gameStarted = false
+    @playerScores = {}
+    @teamScores = {}
 
   init: (startData) ->
     console.log(startData)
@@ -106,62 +108,67 @@ class Main extends Phaser.State
     @socket.on 'rotate', (data) =>
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
-      player = @players[playerColor]
-      input = config.PLAYER_ROTATION_DELTA * data.input
-      player.angle += input #TODO(denisli): tweak
+      if @players[playerColor]?
+        player = @players[playerColor]
+        input = config.PLAYER_ROTATION_DELTA * data.input
+        player.angle += input #TODO(denisli): tweak
 
     @socket.on 'move', (data) =>
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
-      player = @players[playerColor]
-      xInput = config.PLAYER_MOVEMENT_DELTA * data.xInput
-      yInput = config.PLAYER_MOVEMENT_DELTA * data.yInput
+      if @players[playerColor]?
+        player = @players[playerColor]
+        xInput = config.PLAYER_MOVEMENT_DELTA * data.xInput
+        yInput = config.PLAYER_MOVEMENT_DELTA * data.yInput
 
-      player.body.velocity.x = -1 * yInput * Math.cos(player.rotation)
-      player.body.velocity.y = -1 * yInput * Math.sin(player.rotation)
-      player.body.velocity.y += xInput * Math.cos(player.rotation)
-      player.body.velocity.x += -1 * xInput * Math.sin(player.rotation)
-
-    @socket.on 'moveStop', (data) ->
-      playerColor = data.playerColor
-      player = @players[playerColor]
-      player.body.velocity.x = 0
-      player.body.velocity.y = 0
+        player.body.velocity.x = -1 * yInput * Math.cos(player.rotation)
+        player.body.velocity.y = -1 * yInput * Math.sin(player.rotation)
+        player.body.velocity.y += xInput * Math.cos(player.rotation)
+        player.body.velocity.x += -1 * xInput * Math.sin(player.rotation)
 
     @socket.on 'fire', (data) =>
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
-      player = @players[playerColor]
-      @_fire(player)
+      if @players[playerColor]?
+        player = @players[playerColor]
+        @_fire(player)
 
     # Set up players initially
-    @socket.on 'setup-player-scores', (data) ->
-      players = data.players
-      $('#scoretable').empty()
+    @socket.on 'update player scores', (data) =>
+      @playerScores = data.playerScores
+      @teamScores = data.teamScores
+      @_updateScoreTable(@playerScores, null, false)
 
-      # Add header row
-      headerrow = $('<tr />)')
-      emptyCell = $('<th />')
-      playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
-      headerrow.append(emptyCell)
-      headerrow.append(playerScoreText)
-      $('#scoretable').append(headerrow)
+  _updateScoreTable: (playerScores, teamScores, sortByTeamScores) ->
+    $('#scoretable').empty()
 
-      for playerColor in players
-        row = $('<tr />)')
-        styles = {'background-color': playerColor}
-        player = $('<td />').addClass('player').css(styles)
-        playerScore = $('<td id=' + playerColor.slice(1) + ' />').addClass('player-score').html(0)
-        row.append(player)
-        row.append(playerScore)
-        $('#scoretable').append(row)
+    # Add header row
+    headerrow = $('<tr />)')
+    emptyCell = $('<th />')
+    playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
+    headerrow.append(emptyCell)
+    headerrow.append(playerScoreText)
+    if teamScores?
+      teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
+      headerrow.append(teamScoreText)
+    $('#scoretable').append(headerrow)
 
-    # Update scoring table.
-    @socket.on 'update-player-score', (data) ->
-      console.log(data)
-      playerScores = data.playerScores
-      for playerColor, playerScore of playerScores
-        $(playerColor).html(playerScore)
+    if teamScores? and sortByTeamScores
+      playersOrder = util.sortDictionaryByValue(teamScores)
+    else
+      playersOrder = util.sortDictionaryByValue(playerScores)
+
+    for playerColor in playersOrder
+      row = $('<tr />)')
+      styles = {'background-color': playerColor}
+      player = $('<td />').addClass('player').css(styles)
+      playerScore = $('<td id=' + playerColor.slice(1) + ' />').addClass('player-score').html(playerScores[playerColor])
+      row.append(player)
+      row.append(playerScore)
+      if teamScores?
+        teamScore = $('<td />').addClass('team-score').html(teamScores[playerColor])
+        row.append(teamScore)
+      $('#scoretable').append(row)
 
   _bulletWallCollision: (wall, bullet) ->
     if bullet.bounces?
@@ -236,6 +243,7 @@ class Main extends Phaser.State
     text = 'Game over... check the scores'
     @gameOverText = @game.add.text(@game.world.centerX, @game.world.centerY, text, style)
     @gameOverText.anchor.setTo(0.5, 0.5)
+    @_updateScoreTable(@playerScores, @teamScores, true)
 
   # TODO (kpeng94): clean up
   _startGame: =>

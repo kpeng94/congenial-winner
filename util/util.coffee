@@ -23,4 +23,17 @@ class Util
   getDictLength: (dict) ->
     return Object.keys(dict).length
 
+  sortDictionaryByValue: (dictionary) ->
+    array = []
+    for key, value of dictionary
+      array.push([key, value])
+    # sorts by greatest to least
+    array.sort (a, b) ->
+      return b[1] - a[1]
+
+    keys_array = []
+    for item in array
+      keys_array.push(item[0])
+    return keys_array
+
 module.exports = Util

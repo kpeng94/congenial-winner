@@ -32,4 +32,9 @@ class Scoreboard
             @teamScores[player] += @playerScores[teammate]
     return @teamScores
 
+  resetScores: (players) ->
+    for player in players
+      @playerScores[player] = 0
+      @teamScores[player] = 0
+
 module.exports = Scoreboard
