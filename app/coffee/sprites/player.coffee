@@ -24,12 +24,18 @@ class Player
     # Make a sprite for the player
     @sprite = @game.add.sprite playerLocation.x, playerLocation.y
     @sprite.addChild graphics
-    @sprite.anchor.x = 0.5
-    @sprite.anchor.y = 0.5
-    #@game.physics.enable(@sprite)
-    @game.physics.p2.enable @sprite
+    #@sprite.anchor.x = 0.5
+    #@sprite.anchor.y = 0.5
+    @game.physics.p2.enableBody @sprite, false
+    @sprite.body.setZeroDamping()
+    @sprite.body.setZeroForce()
+    @sprite.body.setZeroVelocity()
+    @sprite.body.fixedRotation = true
     @sprite.body.collideWorldBounds = true
     @sprite.tint = @color
+
+    #Creates a new collision bound
+    @sprite.body.setRectangle TRIANGLE_HALF_WIDTH, TRIANGLE_HALF_WIDTH, 0, 0
     return @sprite
 
   getSprite: ->

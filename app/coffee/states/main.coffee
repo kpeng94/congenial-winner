@@ -30,6 +30,9 @@ class Main extends Phaser.State
     @playersGroup = null
     @bullets = null
     @walls = null
+    @playerCollisionGroup = null
+    @bulletCollisionGroup = null
+    @wallCollisionGroup = null
 
   preload: ->
     @game.stage.disableVisibilityChange = true
@@ -49,21 +52,53 @@ class Main extends Phaser.State
   create: ->
     self = @
     @game.stage.backgroundColor = '#EEEEEE'
-    #@game.physics.startSystem(Phaser.Physics.ARCADE)
-
-    # TODO IMPORTANT START
+    #Starts the physics!
     @game.physics.startSystem(Phaser.Physics.P2JS)
     jsonWalls = @game.cache.getJSON('map')
+
+    #Sets up players
+    @playersGroup = @game.add.group()
+    @playersGroup.enableBody = true
+    @game.physics.p2.enableBody @playersGroup, false
+    @playerCollisionGroup = @game.physics.p2.createCollisionGroup @playersGroup
+
+    # Set up bullets
+    @bullets = @game.add.group()
+    @bullets.enableBody = true
+    @game.physics.p2.enableBody @bullets, false
+    @bulletCollisionGroup = @game.physics.p2.createCollisionGroup @bullets
+
+    for i in [0...GLOBAL_NUMBER_OF_BULLETS]
+      bullet = new Bullet(@game)
+      bulletSprite = bullet.constructSprite()
+      @bullets.add bulletSprite
+    #@bullets.setAll('anchor.x', 0.5)
+    #@bullets.setAll('anchor.y', 0.5)
+    @bullets.setAll('outOfBoundsKill', true)
+    @bullets.setAll('checkWorldBounds', true)
 
     # Create the level for the game
     @walls = (new MapLoader).generateMap1 @game, jsonWalls
     @walls.enableBody = true
-    # TODO IMPORTANT END
-    
+    #@game.physics.p2.enableBody @walls, false
+    @wallCollisionGroup = @game.physics.p2.createCollisionGroup  @walls
+
+    # Handles the collision groups
+    @game.physics.p2.setImpactEvents true
+    @game.physics.p2.restitution = 1
+    @game.physics.p2.updateBoundsCollisionGroup()
+
+    for wall in @walls.children#NOTE collisions must be two sided
+      wall.body.collides  [@playerCollisionGroup, @bulletCollisionGroup]
+      #wall.body.collides  @bulletCollisionGroup, @bulletWallCollision, @
+    for bullet in @bullets.children
+      bullet.body.collides @playerCollisionGroup
     # TODO (kpeng94): where is best place to put these?
     '''
     Set up handlers for when players join / leave
     '''
+
+
     socket.on 'player joined', (data) ->
       console.log 'player joined'
       console.log data
@@ -74,6 +109,10 @@ class Main extends Phaser.State
         playerSprite = player.constructSprite(playerLocation)
         self.players[playerColor] = player
         self.playersGroup.add(playerSprite)
+        #Sets the collisions for the player
+        playerSprite.body.setCollisionGroup self.playerCollisionGroup
+        playerSprite.body.collides [self.playerCollisionGroup, self.wallCollisionGroup]
+        playerSprite.body.collides self.bulletCollisionGroup,  self.hitPlayer, self
 
     socket.on 'player left', (data) ->
       console.log 'player left'
@@ -91,36 +130,24 @@ class Main extends Phaser.State
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
-      input = 8 * data.input
-      playerSprite.angle += input #TODO: tweak
-      console.log playerSprite.rotation
+      input = Math.PI / 12 * data.input
+      playerSprite.body.rotation += input #TODO: tweak
+      playerSprite.rotation = playerSprite.body.rotation
+      #console.log playerSprite.body.rotation
 
-    socket.on 'moveVertically', (data) ->
+    socket.on 'move', (data) ->
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
-      input = PLAYER_SPEED * data.input
-      playerSprite.body.velocity.x = -1 * input * Math.cos(playerSprite.rotation)
-      playerSprite.body.velocity.y = -1 * input * Math.sin(playerSprite.rotation)
-    socket.on 'moveHorizontally', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      input = PLAYER_SPEED * data.input
-      #playerSprite.body.velocity.x = input
-      playerSprite.body.velocity.y = input * Math.cos(playerSprite.rotation)
-      playerSprite.body.velocity.x = -1 * input * Math.sin(playerSprite.rotation)
-
-    socket.on 'moveStop', (data) ->
-      playerColor = data.playerColor
-      player = self.players[playerColor]
-      playerSprite = player.getSprite()
-      playerSprite.body.velocity.x = 0
-      playerSprite.body.velocity.y = 0
-
+      xInput = PLAYER_SPEED * data.xInput
+      yInput = PLAYER_SPEED * data.yInput
+      playerSprite.body.setZeroVelocity()
+      xVelocity = -1 * yInput * Math.cos(playerSprite.rotation) - xInput * Math.sin(playerSprite.rotation)
+      yVelocity = -1 * yInput * Math.sin(playerSprite.rotation) + xInput * Math.cos(playerSprite.rotation)
+      playerSprite.body.velocity.x = xVelocity
+      playerSprite.body.velocity.y = yVelocity
     socket.on 'fire', (data) ->
       console.log('Fire')
-      console.log(data)
       playerColor = data.playerColor
       player = self.players[playerColor]
       playerSprite = player.getSprite()
@@ -130,36 +157,18 @@ class Main extends Phaser.State
       playerStates = data
       console.log playerStates
 
-    @playersGroup = @game.add.group()
-    @playersGroup.enableBody = true
-    @playersGroup.physicsBodyType = Phaser.Physics.ARCADE
-    @game.physics.enable(@playersGroup)
-
-    # Set up bullets
-    @bullets = @game.add.group()
-    @bullets.enableBody = true
-    @bullets.physicsBodyType = Phaser.Physics.ARCADE
-
-    for i in [0...GLOBAL_NUMBER_OF_BULLETS]
-      bullet = new Bullet(@game)
-      @bullets.add(bullet.constructSprite())
-    @bullets.setAll('anchor.x', 0.5)
-    @bullets.setAll('anchor.y', 0.5)
-    @bullets.setAll('outOfBoundsKill', true)
-    @bullets.setAll('checkWorldBounds', true)
-
     console.log 'Main state created'
 
   update: ->
-    #for player in @playersGroup.children
-      #player.body.acceleration.x = -player.body.velocity.x * 0.25
-      #player.body.acceleration.y = -player.body.velocity.y * 0.25
+    for player in @playersGroup.children
+      #Damping factor of 0.25 for the player's veloctiy
+      player.body.damping = 0
+      player.body.setZeroForce()
 
-    @game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
-    @game.physics.arcade.collide(@playersGroup, @walls)
-    @game.physics.arcade.collide(@playersGroup)
-    @game.physics.arcade.collide(@walls, @bullets, @bulletWallCollision)
-
+    #@game.physics.arcade.overlap(@playersGroup, @bullets, @hitPlayer, null, @)
+    #@game.physics.arcade.collide(@playersGroup, @walls)
+    #@game.physics.arcade.collide(@playersGroup)
+    #@game.physics.arcade.collide(@walls, @bullets, @bulletWallCollision)
   render: ->
     #for wall in @walls.children
     #  @game.debug.body(wall)
@@ -169,17 +178,22 @@ class Main extends Phaser.State
     # for bullet in @bullets.children
       # @game.debug.body(bullet)
 
-  bulletWallCollision: (wall, bullet) ->
-    if bullet.bounces?
-      bullet.bounces += 1
-    else
-      bullet.bounces = 1
+  bulletWallCollision: (bullet, wall) ->
+    console.log 'bounce'
+    bullet.bounces = true
+    console.log bullet.bounces
+    #if bullet.bounces?
+      #bullet.bounces += 1
+    #else
+      #bullet.bounces = 1
 
   # Player = playerSprite
-  hitPlayer: (player, bullet) ->
+  hitPlayer: (playerBody, bulletBody) ->
+    player = playerBody.sprite
+    bullet = bulletBody.sprite
     collisionData = {shooter: bullet.tint.toString(16), target: player.tint.toString(16)}
 
-    bulletHasHitWall = bullet.bounces? and bullet.bounces >= 1
+    bulletHasHitWall = bulletBody.bounces#bullet.bounces? and bullet.bounces >= 1
     bulletNotOwnedByPlayer = bullet.tint isnt player.tint
 
     # If the bullet bounced off some wall, the bullet should be able to kill any player
@@ -195,17 +209,38 @@ class Main extends Phaser.State
     # bullet.children[0] contains the graphic for the bullet
     bullet.children[0].tint = util.formatColor(player.getColor())
     bullet.tint = player.getColor()
-    bullet.reset(playerSprite.x, playerSprite.y)
-    bullet.body.bounce.x = 1
-    bullet.body.bounce.y = 1
+    rotation = playerSprite.rotation
+    sin = Math.sin rotation
+    cos = Math.cos rotation
+    console.log sin, cos, playerSprite.height, playerSprite.width
+    offsetX = playerSprite.width / 2 * cos
+    offsetY = playerSprite.width / 2 * sin
+    console.log offsetX, offsetY, rotation
+    frontX = playerSprite.x + offsetX
+    frontY = playerSprite.y + offsetY
+    console.log frontX, frontY
+
+    bullet.reset(frontX, frontY)
+    console.log bullet
+    bullet.exists = true
+    #Can't do bounce!
+    #bullet.body.bounce.x = 1
+    #bullet.body.bounce.y = 1
     bullet.lifespan = BULLET_LIFESPAN
     bullet.bounces = 0
+    bullet.body.setCollisionGroup @bulletCollisionGroup
+    bullet.body.collides  @wallCollisionGroup, @bulletWallCollision, @
 
-    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
-        BULLET_VELOCITY, bullet.body.velocity)
+    xVelocity = BULLET_VELOCITY * cos
+    yVelocity = BULLET_VELOCITY * sin
+    bullet.body.velocity.x = xVelocity
+    bullet.body.velocity.y = yVelocity
+    console.log bullet
+    #@game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+    #    BULLET_VELOCITY, bullet.body.velocity)
 
-    @game.physics.arcade.velocityFromRotation(playerSprite.rotation,
-        BULLET_VELOCITY, bullet.body.velocity)
+    #@game.physics.arcade.velocityFromRotation(playerSprite.rotation,
+    #    BULLET_VELOCITY, bullet.body.velocity)
 
 
 

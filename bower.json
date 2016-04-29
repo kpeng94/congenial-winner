@@ -1,7 +1,7 @@
 {
   "name": "ourgame",
   "dependencies": {
-    "phaser": "~2.0.4",
+    "phaser": "~2.4.6",
     "jquery": "~2.1.1"
   }
 }

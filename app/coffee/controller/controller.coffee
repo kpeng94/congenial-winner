@@ -42,17 +42,8 @@ $('#container').css('background-color', playerColor)
 sendRotationInput = (input) ->
   socket.emit('rotate', input)
 
-# input is either -1 or 1 (-1 meaning to move up and 1 to move down)
-sendVerticalMovementInput = (input) ->
-  socket.emit('moveVertically', input)
-
-# input is either -1 or 1 (-1 meaning to move left and 1 to move right)
-sendHorizontalMovementInput = (input) ->
-  socket.emit('moveHorizontally', input)
-
-# stops movement
-sendStopMovementInput = (input) ->
-  socket.emit('moveStop', input)
+sendMoveInput = (xInput, yInput) ->
+  socket.emit('move', xInput, yInput)
 
 sendFireInput = ->
   console.log 'hello'
@@ -61,36 +52,41 @@ sendFireInput = ->
     previousFireTime = fireTime
     socket.emit('fire')
 
+updateKeypress = ->
+  #Fire keypress
+  if keys['fire']
+    sendFireInput()
+  xInput = 0
+  yInput = 0
+  #Turning keypresses
+  if keys['turn left']
+    sendRotationInput -1
+  else if keys['turn right']
+    sendRotationInput 1
+  #Movement keypresses
+  if keys['left']
+    xInput = -1
+  else if keys['right']
+    xInput = 1
+  if keys['up']
+    yInput = -1
+  else if keys['down']
+    yInput = 1
+  sendMoveInput xInput, yInput
+
 $(window).keydown (event) ->
   #Gets the keyCode
   code = event.keyCode
   #Only processes if event key code
-  if keyCodeToName[code] isnt null
+  if keyCodeToName[code] isnt undefined
     #Gets key code name
     keyName = keyCodeToName[code]
     keys[keyName] = true
-    #Fire keypress
-    if keys['fire']
-      sendFireInput()
-    #Turning keypresses
-    if keys['turn left']
-      sendRotationInput -1
-    else if keys['turn right']
-      sendRotationInput 1
-    #Movement keypresses
-    if keys['left']
-      sendHorizontalMovementInput -1
-    else if keys['right']
-      sendHorizontalMovementInput 1
-    if keys['up']
-      sendVerticalMovementInput -1
-    else if keys['down']
-      sendVerticalMovementInput 1
+    updateKeypress()
 
 $(window).keyup (event) ->
   code = event.keyCode
-  if keyCodeToName[code] isnt null
+  if keyCodeToName[code] isnt undefined
     keyName = keyCodeToName[code]
     keys[keyName] = false
-    if MOMENTUM_ENABLED isnt true and keyName isnt 'fire'
-      sendStopMovementInput 0
+    updateKeypress()

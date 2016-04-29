@@ -1,7 +1,7 @@
 Phaser = require 'Phaser'
 Util = require '../util.coffee'
 
-BULLET_OPACITY = 0.5
+BULLET_OPACITY = 1
 BULLET_RADIUS = 4
 
 util = new Util
@@ -20,14 +20,19 @@ class Bullet
     graphics.endFill()
 
     @sprite = @game.add.sprite 0, 0
-    @game.physics.arcade.enable(@sprite)
-    @sprite.body.setSize(2 * BULLET_RADIUS, 2 * BULLET_RADIUS, -BULLET_RADIUS, -BULLET_RADIUS)
+    #@game.physics.arcade.enable(@sprite)
+    @sprite.width = 2 * BULLET_RADIUS
+    @sprite.height = 2 * BULLET_RADIUS
     @sprite.addChild graphics
+    @game.physics.p2.enableBody @sprite, true
+    #@sprite.body.offset = new Phaser.Point -BULLET_RADIUS, -BULLET_RADIUS
+    @sprite.body.setRectangleFromSprite @sprite
+    @sprite.body.mass = 100
     @sprite.exists = false
-    @sprite.visible = false
-    @sprite.alive = false
-    @sprite.anchor.x = 0.5
-    @sprite.anchor.y = 0.5
+    #@sprite.visible = false
+    #@sprite.alive = false
+    #@sprite.anchor.x = 0.5
+    #@sprite.anchor.y = 0.5
     return @sprite
 
   getSprite: ->

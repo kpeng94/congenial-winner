@@ -1,4 +1,4 @@
-Phaser = require 'Phaser'
+wPhaser = require 'Phaser'
 config = require '../config.coffee'
 
 class Wall extends Phaser.Sprite
