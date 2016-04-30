@@ -57,9 +57,9 @@ _updateBulletUI = ->
   $('#num-bullets').html(numBullets)
 
 _resetBulletCount = ->
-  console.log("this was called")
+  console.log('this was called')
   numBullets = config.PLAYER_INIT_NUM_BULLETS
-  console.log("updated numBullets to be: " + numBullets)
+  console.log('updated numBullets to be: ' + numBullets)
   _updateBulletUI()
 
 _reload = ->
@@ -67,11 +67,12 @@ _reload = ->
   # Deny reloading (convenient for player) if the player just reloaded.
   # This is a convenience feature since we are making the CD = time for reload
   if reloadTime - previousReloadTime > config.PLAYER_RELOAD_CD
-    console.log("Reloading")
+    console.log('Reloading')
     previousReloadTime = reloadTime
     setTimeout _resetBulletCount, config.PLAYER_RELOAD_CD
 
 _sendInitialPlayerData()
+_updateBulletUI()
 
 sendKeys = ->
   if keysDown['fire']
@@ -99,6 +100,9 @@ sendKeys = ->
   setTimeout sendKeys, 16
 
 setTimeout sendKeys, 16
+
+socket.on 'game start', ->
+  _resetBulletCount()
 
 socket.on 'teammates', (teammates) ->
   console.log 'teammates'

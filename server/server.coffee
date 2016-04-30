@@ -41,6 +41,7 @@ server = (io) ->
       scoreboard.resetScores(players)
       for player, teammates of teams
         playerToSocket[player].emit('teammates', teammates)
+        playerToSocket[player].emit('game start')
       io.to(bigScreenRoom).emit('update player scores',
         {playerScores: scoreboard.playerScores, teamScores: scoreboard.teamScores})
 
