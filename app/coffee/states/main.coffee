@@ -10,6 +10,7 @@ Util            = require '../../../util/util.coffee'
 GLOBAL_NUMBER_OF_BULLETS = 100
 BULLET_LIFESPAN = 3000 # number of milliseconds
 BULLET_VELOCITY = 200
+DEATH_DURATION = 3000 # number of milliseconds
 
 util = new Util()
 mapGenerator = new MapGenerator()
@@ -18,6 +19,7 @@ class Main extends Phaser.State
   constructor: ->
     super()
     @players = {}
+    @playerToTimeDead = {}
     @playersGroup = null
     @bullets = null
     @walls = null
@@ -65,6 +67,20 @@ class Main extends Phaser.State
     for player in @playersGroup.children
       player.body.acceleration.x = -player.body.velocity.x * 0.25
       player.body.acceleration.y = -player.body.velocity.y * 0.25
+      timeElapsed = @timer.elapsed
+      player.isInvincible = false
+      # Update the death timer on every dead player
+      if player.color of @playerToTimeDead
+        player.isInvincible = true
+        @playerToTimeDead[player.color] += timeElapsed
+        if @playerToTimeDead[player.color] >= DEATH_DURATION
+          delete @playerToTimeDead[player.color]
+          @_resetSpriteToRandomValidLocation player
+          player.respawnAnimation.restart()
+      # If the player just respawned, play the animation
+      if player.respawnAnimation.isPlaying
+        player.isInvincible = true
+        player.respawnAnimation.update(timeElapsed)
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
@@ -184,9 +200,13 @@ class Main extends Phaser.State
 
     # If the bullet bounced off some wall, the bullet should be able to kill any player
     # Otherwise, the bullet should only be able to hit OTHER players
-    if bulletHasHitWall or bulletNotOwnedByPlayer
+    if (bulletHasHitWall or bulletNotOwnedByPlayer) and (not player.isInvincible)
       bullet.kill()
-      @_resetSpriteToRandomValidLocation player
+      @playerToTimeDead[player.color] = 0
+      # Hack where we reset sprite out of the screen to avoid it blocking
+      player.reset( -100, -100 )
+      player.visible = false
+      player.isInvincible = true
       if @gameStarted
         @socket.emit('hit-player', collisionData)
 

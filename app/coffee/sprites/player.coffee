@@ -1,5 +1,6 @@
 Phaser = require 'Phaser'
 Util = require '../../../util/util.coffee'
+RespawnAnimation = require './animation/respawn_animation.coffee'
 
 TRIANGLE_HALF_WIDTH = 15
 
@@ -9,6 +10,8 @@ class Player extends Phaser.Sprite
   constructor: (@game, color) ->
     super(@game)
     @color = color
+    @respawnAnimation = new RespawnAnimation(@)
+    @isInvincible = false
     @_constructSprite()
 
   _constructSprite: ->
