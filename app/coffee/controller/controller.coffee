@@ -57,7 +57,6 @@ _updateBulletUI = ->
   $('#num-bullets').html(numBullets)
 
 _resetBulletCount = ->
-  console.log('this was called')
   numBullets = config.PLAYER_INIT_NUM_BULLETS
   console.log('updated numBullets to be: ' + numBullets)
   _updateBulletUI()

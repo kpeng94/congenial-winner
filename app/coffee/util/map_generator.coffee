@@ -1,31 +1,30 @@
 Phaser = require 'Phaser'
 config = require '../../../config/config.coffee'
+levels = require '../../levels/levels.coffee'
 
 BORDER_WALL_SIZE = 4
 
-LEVELS = {
-  '1': {
-    xList: [ 40, 280, 530, 1060, 930, 530, 800, 270 ],
-    yList: [ 400, 400, 530, 70, 530, 280, 200, 100 ],
-    widthList: [ 10, 10, 20, 70, 300, 100, 20, 200 ],
-    heightList: [ 100, 300, 150, 20, 20, 10, 250, 30 ],
-  }
-}
-
 class MapGenerator
+
+  # Generate a map's walls given a level number
   generateMap: (game, level) ->
+    if levels[level]?
+      return @_getWalls(game, levels[level].walls)
+
+    return @_getWalls(game, [])
+
+
+  # Generate a map's walls given the walls JSON object
+  #
+  # walls parameter contains a JSON object of the form
+  # {'walls': [{x: x, y: y, width: w, height: h, angle: a}, ...]}
+  _getWalls: (game, wallsData) ->
     walls = game.add.group()
     walls.enableBody = true
 
-    if LEVELS[level]?
-      xList = LEVELS[level].xList
-      yList = LEVELS[level].yList
-      widthList = LEVELS[level].widthList
-      heightList = LEVELS[level].heightList
-
-      end = xList.length - 1
-      for i in [end..0]
-        walls.add( @_create_wall_sprite(game, xList[i], yList[i], widthList[i], heightList[i]))
+    # TODO (kpeng94): currently no support for angles due to physics system
+    for wall in wallsData
+      walls.add( @_create_wall_sprite(game, wall.x, wall.y, wall.width, wall.height))
 
     @_addBorderWalls(game, walls)
     return walls

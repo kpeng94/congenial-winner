@@ -22,7 +22,7 @@ class LevelSelect extends Phaser.State
     @game.stage.backgroundColor = config.backgroundColor
     # TODO(kpeng94): will have to fiddle with the locations and may have to move
     # text
-    for i in [1...5]
+    for i in [1...config.numLevels + 1]
       text = i
       x = 400
       y = 100 + i * 75
