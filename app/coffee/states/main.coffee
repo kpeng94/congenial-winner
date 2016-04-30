@@ -81,6 +81,10 @@ class Main extends Phaser.State
       if player.respawnAnimation.isPlaying
         player.isInvincible = true
         player.respawnAnimation.update(timeElapsed)
+        # If respawning is done, then the player is back to not invincible
+        if not player.respawnAnimation.isPlaying
+          invincibilityData = {isInvincible: false, playerColor: player.color}
+          @socket.emit('invincibility', invincibilityData)
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
@@ -207,6 +211,8 @@ class Main extends Phaser.State
       player.reset( -100, -100 )
       player.visible = false
       player.isInvincible = true
+      invincibilityData = {isInvincible: true, playerColor: player.color}
+      @socket.emit('invincibility', invincibilityData)
       if @gameStarted
         @socket.emit('hit-player', collisionData)
 

@@ -79,4 +79,7 @@ server = (io) ->
       for playerColor, teammates of teams
         playerToSocket[playerColor].emit('update-team-score', teamScores[playerColor])
 
+    socket.on 'invincibility', (data) ->
+      playerToSocket[data.playerColor].emit 'invincibility', data.isInvincible
+
 module.exports = server

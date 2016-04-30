@@ -3,6 +3,7 @@ Util        = require '../../../util/util.coffee'
 
 INPUT_REFRESH_RATE = 16  # milliseconds
 numBullets = config.PLAYER_INIT_NUM_BULLETS
+isInvincible = false
 previousFireTime = 0
 previousReloadTime = 0
 
@@ -43,15 +44,16 @@ _sendMoveInput = (xInput, yInput) ->
   socket.emit('move', xInput, yInput)
 
 _sendFireInput = ->
-  fireTime = new Date()
-  playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
-  playerIsNotReloading = fireTime - previousReloadTime > config.PLAYER_RELOAD_CD
-  hasEnoughBullets = numBullets > 0
-  if playerCanFire and playerIsNotReloading and hasEnoughBullets
-    numBullets--
-    previousFireTime = fireTime
-    _updateBulletUI()
-    socket.emit('fire')
+  if not isInvincible
+    fireTime = new Date()
+    playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
+    playerIsNotReloading = fireTime - previousReloadTime > config.PLAYER_RELOAD_CD
+    hasEnoughBullets = numBullets > 0
+    if playerCanFire and playerIsNotReloading and hasEnoughBullets
+      numBullets--
+      previousFireTime = fireTime
+      _updateBulletUI()
+      socket.emit('fire')
 
 _updateBulletUI = ->
   $('#num-bullets').html(numBullets)
@@ -121,6 +123,9 @@ socket.on 'update-team-score', (score) ->
   console.debug 'team-score'
   console.debug score
   $('#team-score').text(score)
+
+socket.on 'invincibility', (isInvincibleBool) ->
+  isInvincible = isInvincibleBool
 
 '''
 Respond to key events
