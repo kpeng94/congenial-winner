@@ -1,6 +1,4 @@
-HIT_INCREMENT = 2
-HURT_DECREMENT = 1
-SELF_HIT_DECREMENT = 1
+config = require '../config/config.coffee'
 
 class Scoreboard
   constructor: ->
@@ -16,10 +14,10 @@ class Scoreboard
     if target not of @playerScores
       @playerScores[target] = 0
     if player is target
-      @playerScores[player] -= SELF_HIT_DECREMENT
+      @playerScores[player] -= config.SELF_HIT_DECREMENT
     else
-      @playerScores[player] += HIT_INCREMENT
-      @playerScores[target] -= HURT_DECREMENT
+      @playerScores[player] += config.HIT_INCREMENT
+      @playerScores[target] -= config.HURT_DECREMENT
     return @playerScores
 
   updateTeamScores: ->

@@ -1,7 +1,7 @@
 visuallyDistinguishableColors = [
   '#FF0000',
   '#0000FF',
-  '#00FF00',
+  '#006600',
   '#FF9900',
   '#FF00FF',
   '#006699',
