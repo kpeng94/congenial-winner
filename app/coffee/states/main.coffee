@@ -93,7 +93,7 @@ class Main extends Phaser.State
 
     if @timerStarted?
       [min, sec] = util.getMinSecFromMillisec(@timer.duration.toFixed(0))
-      $('#timerText').text(min + ':' + sec)
+      $('#timerText').text(util.formatMinSec(min, sec))
 
   render: ->
     # for wall in @walls.children
