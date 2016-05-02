@@ -2,14 +2,11 @@ config      = require '../../../config/config.coffee'
 Util        = require '../../../util/util.coffee'
 
 INPUT_REFRESH_RATE = 16  # milliseconds
-numBullets = config.PLAYER_INIT_NUM_BULLETS
 isInvincible = false
 previousFireTime = 0
-previousReloadTime = 0
 
 keyCodeToName = {
   32: 'fire',         # spacebar
-  82: 'reload',       # R
   37: 'left',         # left arrow
   65: 'left',         # A
   38: 'up',           # up arrow
@@ -47,33 +44,11 @@ _sendFireInput = ->
   if not isInvincible
     fireTime = new Date()
     playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
-    playerIsNotReloading = fireTime - previousReloadTime > config.PLAYER_RELOAD_CD
-    hasEnoughBullets = numBullets > 0
-    if playerCanFire and playerIsNotReloading and hasEnoughBullets
-      numBullets--
+    if playerCanFire
       previousFireTime = fireTime
-      _updateBulletUI()
       socket.emit('fire')
 
-_updateBulletUI = ->
-  $('#num-bullets').html(numBullets)
-
-_resetBulletCount = ->
-  numBullets = config.PLAYER_INIT_NUM_BULLETS
-  console.log('updated numBullets to be: ' + numBullets)
-  _updateBulletUI()
-
-_reload = ->
-  reloadTime = new Date()
-  # Deny reloading (convenient for player) if the player just reloaded.
-  # This is a convenience feature since we are making the CD = time for reload
-  if reloadTime - previousReloadTime > config.PLAYER_RELOAD_CD
-    console.log('Reloading')
-    previousReloadTime = reloadTime
-    setTimeout _resetBulletCount, config.PLAYER_RELOAD_CD
-
 _sendInitialPlayerData()
-_updateBulletUI()
 
 sendKeys = ->
   if keysDown['fire']
@@ -95,15 +70,9 @@ sendKeys = ->
   # TODO(kpeng94): Is there a better way to send start / stop signals besides this?
   _sendMoveInput(xInput, yInput)
 
-  if keysDown['reload']
-    _reload()
-
   setTimeout sendKeys, 16
 
 setTimeout sendKeys, 16
-
-socket.on 'game start', ->
-  _resetBulletCount()
 
 socket.on 'teammates', (teammates) ->
   console.log 'teammates'

@@ -21,9 +21,8 @@ module.exports =
   PLAYER_ROTATION_DELTA: 4
 
   # Player firing settings
-  PLAYER_INIT_NUM_BULLETS: 6
   PLAYER_RELOAD_CD: 4000 # milliseconds
-  PLAYER_FIRE_CD: 340 # milliseconds
+  PLAYER_FIRE_CD: 500 # milliseconds
 
   # Scoring configs
   HIT_INCREMENT: 2
