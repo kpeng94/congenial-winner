@@ -31,8 +31,18 @@ class LevelSelect extends Phaser.State
       @game.add.text(x, y, text, {fill: '#000000'})
       button.level = i
 
+    # TODO (kpeng94): change this as well
+    x = config.width - 200
+    y = config.height - 75
+    text = 'Credits'
+    creditsButton = @game.add.button(x, y, 'button', @_goToCredits, @)
+    @game.add.text(x, y, text, {fill: '#000000'})
+
   _startGame: (button) ->
     startData = {level: button.level}
     @state.start('Main', true, false, startData)
+
+  _goToCredits: ->
+    @state.start('Credits', true, false)
 
 module.exports = LevelSelect

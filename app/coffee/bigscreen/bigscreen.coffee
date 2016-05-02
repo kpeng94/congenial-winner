@@ -1,4 +1,5 @@
 config      = require '../../../config/config.coffee'
+Credits     = require '../states/credits.coffee'
 LevelSelect = require '../states/levelselect.coffee'
 Main        = require '../states/main.coffee'
 Phaser      = require 'Phaser'
@@ -10,4 +11,5 @@ socket.emit('addBigScreen')
 game = new Phaser.Game config.width, config.height, Phaser.AUTO, config.gameContainer
 game.state.add 'LevelSelect', LevelSelect
 game.state.add 'Main', Main
+game.state.add 'Credits', Credits
 game.state.start 'LevelSelect'
