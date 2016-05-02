@@ -145,10 +145,9 @@ class LevelMain extends Phaser.State
     localStorage.setItem 'wall', JSON.stringify(@wallData)
   getWallData: (wall) ->
     @wallData += '{
-      x: ' + wall.x + ',
-      y: ' + wall.y + ',
-      width: ' + wall.width + ',
-      height: ' + wall.height + ',
-      angle: ' + wall.angle + '
+      "x": ' + wall.x + ',
+      "y": ' + wall.y + ',
+      "width": ' + wall.width + ',
+      "height": ' + wall.height + '
     }, '
 module.exports = LevelMain

@@ -5,6 +5,7 @@ Player = require '../sprites/player.coffee'
 Util = require '../util.coffee'
 config = require '../config.coffee'
 MapGenerator = require './map_generator.coffee'
+MapLoader = require '../level_editor/map_loader.coffee'
 
 # Total number of bullets in the whole game.
 GLOBAL_NUMBER_OF_BULLETS = 100
@@ -17,7 +18,7 @@ socket = io()
 playerStates = {}
 socket.emit('addBigScreen')
 util = new Util
-mapGenerator = new MapGenerator
+mapLoader = new MapLoader
 
 # On player connection,
 # we want to add a
@@ -42,15 +43,17 @@ class Main extends Phaser.State
         row.append(rightcell)
         $('#scoretable').append(row)
 
+    @game.load.json 'map', 'assets/maps/exampleMap.JSON'
     console.log 'Main state done preloading'
 
   create: ->
     self = @
     @game.stage.backgroundColor = '#EEEEEE'
     @game.physics.startSystem(Phaser.Physics.ARCADE)
+    jsonWalls = @game.cache.getJSON('map')
 
     # Create the level for the game
-    @walls = mapGenerator.generateMap1 @game
+    @walls = (new MapLoader).generateMap1 @game, jsonWalls
     @walls.enableBody = true
 
     # TODO (kpeng94): where is best place to put these?
