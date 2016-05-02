@@ -92,7 +92,8 @@ class Main extends Phaser.State
     @game.physics.arcade.collide(@walls, @bullets, @_bulletWallCollision)
 
     if @timerStarted?
-      $('#timerText').text(@timer.duration.toFixed(0))
+      [min, sec] = util.getMinSecFromMillisec(@timer.duration.toFixed(0))
+      $('#timerText').text(min + ':' + sec)
 
   render: ->
     # for wall in @walls.children

@@ -36,4 +36,18 @@ class Util
       keys_array.push(item[0])
     return keys_array
 
+  # Convert minute seconds to seconds
+  getMinSecFromSec: (seconds) ->
+    min = Math.floor(seconds / 60)
+    sec = seconds % 60
+    return [min, sec]
+
+  getSecFromMillsec: (milliseconds) ->
+    return Math.floor(milliseconds / 1000)
+
+  getMinSecFromMillisec: (milliseconds) ->
+    seconds = @getSecFromMillsec(milliseconds)
+    return @getMinSecFromSec(seconds)
+
+
 module.exports = Util
