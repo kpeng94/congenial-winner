@@ -153,7 +153,6 @@ class Main extends Phaser.State
         player = @players[playerColor]
         @_fire(player)
 
-    # Set up players initially
     @socket.on 'update player scores', (data) =>
       @playerScores = data.playerScores
       @teamScores = data.teamScores
