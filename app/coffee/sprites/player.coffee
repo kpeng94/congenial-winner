@@ -26,7 +26,7 @@ class Player extends Phaser.Sprite
     # window.graphics = graphics
 
     # Make a sprite for the player
-    @ = @game.add.sprite 0, 0, 'blue'
+    Phaser.Sprite.call @, @game, 0, 0, 'blue'
     @.anchor.x = 0.5
     @.anchor.y = 0.5
     @game.physics.enable(@)
