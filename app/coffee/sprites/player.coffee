@@ -16,21 +16,22 @@ class Player extends Phaser.Sprite
 
   _constructSprite: ->
     # Create the graphics for the player
-    graphics = @game.add.graphics 0, 0
-    graphics.lineStyle 3, util.formatColor(@color)
-    graphics.moveTo TRIANGLE_HALF_WIDTH, 0
-    graphics.lineTo -TRIANGLE_HALF_WIDTH, -TRIANGLE_HALF_WIDTH
-    graphics.lineTo -7, 0
-    graphics.lineTo -TRIANGLE_HALF_WIDTH, TRIANGLE_HALF_WIDTH
-    graphics.lineTo TRIANGLE_HALF_WIDTH, 0
-    window.graphics = graphics
-    @.addChild graphics
+    # graphics = @game.add.graphics 0, 0
+    # graphics.lineStyle 3, util.formatColor(@color)
+    # graphics.moveTo TRIANGLE_HALF_WIDTH, 0
+    # graphics.lineTo -TRIANGLE_HALF_WIDTH, -TRIANGLE_HALF_WIDTH
+    # graphics.lineTo -7, 0
+    # graphics.lineTo -TRIANGLE_HALF_WIDTH, TRIANGLE_HALF_WIDTH
+    # graphics.lineTo TRIANGLE_HALF_WIDTH, 0
+    # window.graphics = graphics
+
+    # Make a sprite for the player
+    @ = @game.add.sprite 0, 0, 'blue'
     @.anchor.x = 0.5
     @.anchor.y = 0.5
-
     @game.physics.enable(@)
     @.body.collideWorldBounds = true
-    @.enableBody = true
+    @.playerColor = @color
     return @
 
   getColor: ->

@@ -34,6 +34,9 @@ class Main extends Phaser.State
 
   preload: ->
     @game.stage.disableVisibilityChange = true
+    @game.load.image 'blue', 'assets/images/blue.png'
+
+    console.log 'Main state done preloading'
 
   create: ->
     @timer = @game.time.create()
@@ -197,10 +200,10 @@ class Main extends Phaser.State
       bullet.bounces = 1
 
   _playerBulletCollision: (player, bullet) =>
-    collisionData = {shooter: bullet.owner.toString(16), target: player.color.toString(16)}
+    collisionData = {shooter: bullet.owner.toString(16), target: player.playerColor.toString(16)}
 
     bulletHasHitWall = bullet.bounces? and bullet.bounces >= 1
-    bulletNotOwnedByPlayer = bullet.owner isnt player.color
+    bulletNotOwnedByPlayer = bullet.owner isnt player.playerColor
 
     # If the bullet bounced off some wall, the bullet should be able to kill any player
     # Otherwise, the bullet should only be able to hit OTHER players
