@@ -88,12 +88,12 @@ socket.on 'teammates', (teammates) ->
     $('#teammates').append(player)
   console.log teammates
 
-socket.on 'update-my-score', (score) ->
+socket.on 'update my score', (score) ->
   console.debug 'score'
   console.debug score
   $('#my-score').text(score)
 
-socket.on 'update-team-score', (score) ->
+socket.on 'update team score', (score) ->
   console.debug 'team-score'
   console.debug score
   $('#team-score').text(score)

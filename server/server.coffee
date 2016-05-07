@@ -62,7 +62,7 @@ server = (io) ->
         util.removeFromArray(players, socket.playerColor)
         io.to(bigScreenRoom).emit('player left', socket.playerColor)
 
-    socket.on 'hit-player', (data) ->
+    socket.on 'hit player', (data) ->
       playerColor = data.shooter
       targetColor = data.target
       playerScores = scoreboard.processHit(playerColor, targetColor)
@@ -73,11 +73,11 @@ server = (io) ->
         {playerScores: scoreboard.playerScores, teamScores: scoreboard.teamScores})
 
       # Update player's individual score on controller screen
-      playerToSocket[playerColor].emit('update-my-score', playerScores[playerColor])
+      playerToSocket[playerColor].emit('update my score', playerScores[playerColor])
 
       # Update everyone's team score. Could be done more efficiently by selecting the correct players.
       for playerColor, teammates of teams
-        playerToSocket[playerColor].emit('update-team-score', teamScores[playerColor])
+        playerToSocket[playerColor].emit('update team score', teamScores[playerColor])
 
     socket.on 'invincibility', (data) ->
       playerToSocket[data.playerColor].emit 'invincibility', data.isInvincible

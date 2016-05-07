@@ -257,7 +257,7 @@ class Main extends Phaser.State
       invincibilityData = {isInvincible: true, playerColor: player.playerColor}
       @socket.emit('invincibility', invincibilityData)
       if @gameStarted
-        @socket.emit('hit-player', collisionData)
+        @socket.emit('hit player', collisionData)
 
   _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
