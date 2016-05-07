@@ -9,7 +9,7 @@ util = new Util
 class Player extends Phaser.Sprite
   constructor: (@game, color) ->
     super(@game)
-    @color = color
+    @playerColor = color
     @respawnAnimation = new RespawnAnimation(@)
     @isInvincible = false
     @_constructSprite()
@@ -31,10 +31,9 @@ class Player extends Phaser.Sprite
     @.anchor.y = 0.5
     @game.physics.enable(@)
     @.body.collideWorldBounds = true
-    @.playerColor = @color
     return @
 
   getColor: ->
-    return @color
+    return @playerColor
 
 module.exports = Player

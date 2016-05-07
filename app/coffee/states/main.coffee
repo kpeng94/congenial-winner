@@ -73,11 +73,11 @@ class Main extends Phaser.State
       timeElapsed = @timer.elapsed
       player.isInvincible = false
       # Update the death timer on every dead player
-      if player.color of @playerToTimeDead
+      if player.playerColor of @playerToTimeDead
         player.isInvincible = true
-        @playerToTimeDead[player.color] += timeElapsed
-        if @playerToTimeDead[player.color] >= DEATH_DURATION
-          delete @playerToTimeDead[player.color]
+        @playerToTimeDead[player.playerColor] += timeElapsed
+        if @playerToTimeDead[player.playerColor] >= DEATH_DURATION
+          delete @playerToTimeDead[player.playerColor]
           @_resetSpriteToRandomValidLocation player
           player.respawnAnimation.restart()
       # If the player just respawned, play the animation
@@ -86,7 +86,7 @@ class Main extends Phaser.State
         player.respawnAnimation.update(timeElapsed)
         # If respawning is done, then the player is back to not invincible
         if not player.respawnAnimation.isPlaying
-          invincibilityData = {isInvincible: false, playerColor: player.color}
+          invincibilityData = {isInvincible: false, playerColor: player.playerColor}
           @socket.emit('invincibility', invincibilityData)
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
@@ -209,12 +209,12 @@ class Main extends Phaser.State
     # Otherwise, the bullet should only be able to hit OTHER players
     if (bulletHasHitWall or bulletNotOwnedByPlayer) and (not player.isInvincible)
       bullet.kill()
-      @playerToTimeDead[player.color] = 0
+      @playerToTimeDead[player.playerColor] = 0
       # Hack where we reset sprite out of the screen to avoid it blocking
       player.reset( -100, -100 )
       player.visible = false
       player.isInvincible = true
-      invincibilityData = {isInvincible: true, playerColor: player.color}
+      invincibilityData = {isInvincible: true, playerColor: player.playerColor}
       @socket.emit('invincibility', invincibilityData)
       if @gameStarted
         @socket.emit('hit-player', collisionData)
@@ -222,8 +222,8 @@ class Main extends Phaser.State
   _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
     # bullet.children[0] contains the graphic for the bullet
-    bullet.children[0].tint = util.formatColor(player.color)
-    bullet.owner = player.color
+    bullet.children[0].tint = util.formatColor(player.playerColor)
+    bullet.owner = player.playerColor
     bullet.reset(player.x, player.y)
     bullet.lifespan = BULLET_LIFESPAN
     bullet.bounces = 0
