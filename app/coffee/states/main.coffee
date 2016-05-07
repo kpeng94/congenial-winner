@@ -27,6 +27,7 @@ class Main extends Phaser.State
     @gameStarted = false
     @playerScores = {}
     @teamScores = {}
+    @playersReadyStatus = {}
 
   init: (startData) ->
     console.log(startData)
@@ -117,9 +118,9 @@ class Main extends Phaser.State
         player = new Player(@game, playerColor)
         @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
+        @playersReadyStatus[playerColor] = false
         @playersGroup.add(player)
-        if util.getDictLength(@players) is config.numPlayers
-          @_startGame()
+        @_updateReadyTable()
 
     @socket.on 'player left', (playerColor) =>
       console.log 'Player with color ' + playerColor + ' left'
@@ -128,6 +129,7 @@ class Main extends Phaser.State
         player.destroy()
         @playersGroup.remove(player)
         delete @players[playerColor]
+        delete @playersReadyStatus[playerColor]
 
     @socket.on 'rotate', (data) =>
       playerColor = data.playerColor
@@ -135,7 +137,7 @@ class Main extends Phaser.State
       if @players[playerColor]?
         player = @players[playerColor]
         input = config.PLAYER_ROTATION_DELTA * data.input
-        player.angle += input #TODO(denisli): tweak
+        player.angle += input
 
     @socket.on 'move', (data) =>
       playerColor = data.playerColor
@@ -162,19 +164,57 @@ class Main extends Phaser.State
       @teamScores = data.teamScores
       @_updateScoreTable(@playerScores, null, false)
 
+    @socket.on 'player ready', (playerColor) =>
+      @playersReadyStatus[playerColor] = true
+      @_updateReadyTable()
+
+      correctNumPlayers = util.getDictLength(@players) is config.numPlayers
+      everyoneIsReady = true
+      for playerColor of @playersReadyStatus
+        if not @playersReadyStatus[playerColor]
+          everyoneIsReady = false
+
+      if correctNumPlayers and everyoneIsReady
+        $('#readytable').remove()
+        @_startGame()
+
+
+  _updateReadyTable: ->
+    $('#readytable').empty()
+
+    # Add header row
+    headerRow = $('<tr />)')
+    playerText = $('<th />').html('Player')
+    readyText = $('<th />').addClass('ready-status').html('Ready?')
+    headerRow.append(playerText)
+    headerRow.append(readyText)
+    $('#readytable').append(headerRow)
+
+    for playerColor of @playersReadyStatus
+      row = $('<tr />)')
+      styles = {'background-color': playerColor}
+      playerData = $('<td />').addClass('player').css(styles)
+      if @playersReadyStatus[playerColor]
+        playerReadyText = $('<td />').html('READY')
+      else
+        playerReadyText = $('<td />').html('NOT READY')
+      row.append(playerData)
+      row.append(playerReadyText)
+      $('#readytable').append(row)
+
   _updateScoreTable: (playerScores, teamScores, sortByTeamScores) ->
     $('#scoretable').empty()
 
     # Add header row
-    headerrow = $('<tr />)')
-    emptyCell = $('<th />')
+    headerRow = $('<tr />)')
+    playerText = $('<th />').html('Player')
     playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
-    headerrow.append(emptyCell)
-    headerrow.append(playerScoreText)
+    headerRow.append(playerText)
+    headerRow.append(playerScoreText)
     if teamScores?
       teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
-      headerrow.append(teamScoreText)
-    $('#scoretable').append(headerrow)
+      headerRow.append(teamScoreText)
+    $('#scoretable').append(headerRow)
 
     if teamScores? and sortByTeamScores
       playersOrder = util.sortDictionaryByValue(teamScores)

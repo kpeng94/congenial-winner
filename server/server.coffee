@@ -23,14 +23,14 @@ server = (io) ->
     socket.on 'addBigScreen', ->
       socket.join(bigScreenRoom)
 
-    socket.on 'addPlayer', ->
+    socket.on 'add player', ->
       isPlayer = true
       playerColor = colorAllocator.allocateColor()
       socket.playerColor = playerColor
 
       if not (playerColor in players)
         players.push(playerColor)
-        socket.emit('playerColor', playerColor)
+        socket.emit('player color', playerColor)
         io.to(bigScreenRoom).emit('player joined', playerColor)
         playerToSocket[playerColor] = socket
         console.log('Added new player with color ' + playerColor)
@@ -81,5 +81,8 @@ server = (io) ->
 
     socket.on 'invincibility', (data) ->
       playerToSocket[data.playerColor].emit 'invincibility', data.isInvincible
+
+    socket.on 'player ready', ->
+      io.to(bigScreenRoom).emit('player ready', socket.playerColor)
 
 module.exports = server
