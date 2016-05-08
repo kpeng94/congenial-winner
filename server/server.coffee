@@ -85,4 +85,9 @@ server = (io) ->
     socket.on 'player ready', ->
       io.to(bigScreenRoom).emit('player ready', socket.playerColor)
 
+    socket.on 'deathTimerCountdown', (data) ->
+      time = data.time
+      playerColor = data.playerColor
+      playerToSocket[playerColor].emit 'deathTimerCountdown', time
+
 module.exports = server

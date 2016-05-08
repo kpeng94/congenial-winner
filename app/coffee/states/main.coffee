@@ -74,11 +74,14 @@ class Main extends Phaser.State
       timeElapsed = @timer.elapsed
       player.isInvincible = false
       # Update the death timer on every dead player
-      if player.playerColor of @playerToTimeDead
-        player.isInvincible = true
-        @playerToTimeDead[player.playerColor] += timeElapsed
-        if @playerToTimeDead[player.playerColor] >= DEATH_DURATION
-          delete @playerToTimeDead[player.playerColor]
+      playerColor = player.playerColor
+      if playerColor of @playerToTimeDead
+        isInvincible = true
+        @playerToTimeDead[playerColor] += timeElapsed
+        timeDead = @playerToTimeDead[playerColor]
+        @_sendDeathTimerCountdown(DEATH_DURATION - timeDead, playerColor)
+        if @playerToTimeDead[playerColor] >= DEATH_DURATION
+          delete @playerToTimeDead[playerColor]
           @_resetSpriteToRandomValidLocation player
           player.respawnAnimation.restart()
       # If the player just respawned, play the animation
@@ -87,7 +90,7 @@ class Main extends Phaser.State
         player.respawnAnimation.update(timeElapsed)
         # If respawning is done, then the player is back to not invincible
         if not player.respawnAnimation.isPlaying
-          invincibilityData = {isInvincible: false, playerColor: player.playerColor}
+          invincibilityData = {isInvincible: false, playerColor: playerColor}
           @socket.emit('invincibility', invincibilityData)
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
@@ -331,5 +334,8 @@ class Main extends Phaser.State
     else if not playerColor in @players
       console.log('The player color ' + playerColor + ' does not exist.')
       console.log('Available color-player mappings are ' + @players)
+
+  _sendDeathTimerCountdown: (time, playerColor) ->
+    @socket.emit('deathTimerCountdown', {time: time, playerColor: playerColor})
 
 module.exports = Main

@@ -101,6 +101,12 @@ socket.on 'update team score', (score) ->
 socket.on 'invincibility', (isInvincibleBool) ->
   isInvincible = isInvincibleBool
 
+socket.on 'deathTimerCountdown', (time) ->
+  if time <= 0
+    $('#death-timer-countdown').text('')
+  else
+    $('#death-timer-countdown').text(time + ' milliseconds until respawn')
+
 '''
 Respond to key events
 '''
