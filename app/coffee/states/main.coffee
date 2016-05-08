@@ -72,7 +72,6 @@ class Main extends Phaser.State
       player.body.acceleration.x = -player.body.velocity.x * 0.25
       player.body.acceleration.y = -player.body.velocity.y * 0.25
       timeElapsed = @timer.elapsed
-      player.isInvincible = false
       # Update the death timer on every dead player
       playerColor = player.playerColor
       if playerColor of @playerToTimeDead
@@ -86,12 +85,10 @@ class Main extends Phaser.State
           player.respawnAnimation.restart()
       # If the player just respawned, play the animation
       if player.respawnAnimation.isPlaying
-        player.isInvincible = true
         player.respawnAnimation.update(timeElapsed)
         # If respawning is done, then the player is back to not invincible
         if not player.respawnAnimation.isPlaying
-          invincibilityData = {isInvincible: false, playerColor: playerColor}
-          @socket.emit('invincibility', invincibilityData)
+          @_setInvincibility player, false
 
     @game.physics.arcade.overlap(@playersGroup, @bullets, @_playerBulletCollision, null, @)
     @game.physics.arcade.collide(@playersGroup, @walls)
@@ -155,12 +152,16 @@ class Main extends Phaser.State
         player.body.velocity.y += xInput * Math.cos(player.rotation)
         player.body.velocity.x += -1 * xInput * Math.sin(player.rotation)
 
+        if (data.xInput isnt 0) or (data.yInput isnt 0)
+          @_turnOffInvincibility player
+
     @socket.on 'fire', (data) =>
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
       if @players[playerColor]?
         player = @players[playerColor]
         @_fire(player)
+        @_turnOffInvincibility player
 
     @socket.on 'update player scores', (data) =>
       @playerScores = data.playerScores
@@ -256,9 +257,7 @@ class Main extends Phaser.State
       # Hack where we reset sprite out of the screen to avoid it blocking
       player.reset( -100, -100 )
       player.visible = false
-      player.isInvincible = true
-      invincibilityData = {isInvincible: true, playerColor: player.playerColor}
-      @socket.emit('invincibility', invincibilityData)
+      @_setInvincibility player, true
       if @gameStarted
         @socket.emit('hit player', collisionData)
 
@@ -273,6 +272,19 @@ class Main extends Phaser.State
 
     @game.physics.arcade.velocityFromRotation(player.rotation,
         BULLET_VELOCITY, bullet.body.velocity)
+
+  _turnOffInvincibility: (player) ->
+    if player.respawnAnimation.isPlaying
+      player.respawnAnimation.stop()
+      player.visible = true
+      @_setInvincibility player, false
+      console.log('Set player ' + player.playerColor + ' to not invincible')
+
+  _setInvincibility: (player, isInvincible) ->
+    console.log('Set invincibility for player ' + player.playerColor + ' to ' + isInvincible)
+    player.isInvincible = isInvincible
+    invincibilityData = {isInvincible: isInvincible, playerColor: player.playerColor}
+    @socket.emit('invincibility', invincibilityData)
 
   _resetSpriteToRandomValidLocation: (sprite) ->
     console.log('Setting player to a random location not lying within walls')

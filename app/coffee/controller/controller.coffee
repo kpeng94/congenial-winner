@@ -46,12 +46,11 @@ _sendMoveInput = (xInput, yInput) ->
   socket.emit('move', xInput, yInput)
 
 _sendFireInput = ->
-  if not isInvincible
-    fireTime = new Date()
-    playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
-    if playerCanFire
-      previousFireTime = fireTime
-      socket.emit('fire')
+  fireTime = new Date()
+  playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
+  if playerCanFire
+    previousFireTime = fireTime
+    socket.emit('fire')
 
 _sendInitialPlayerData()
 

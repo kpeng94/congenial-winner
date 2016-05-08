@@ -7,7 +7,7 @@ class RespawnAnimation
     # All fields with the word duration refer to an upper bound
     # in time.
     @isPlaying = false
-    @duration = 3000
+    @duration = 10000
     @timePlayed = 0
     @isVisible = true
     @invisibilityDuration = 200
@@ -21,6 +21,10 @@ class RespawnAnimation
     @isVisible = true
     @invisibilityTime = 0
     @visibilityTime = 0
+
+  stop: ->
+    @restart()
+    @isPlaying = false
 
   update: (dt) ->
     '''
