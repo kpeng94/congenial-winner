@@ -35,7 +35,7 @@ class Main extends Phaser.State
 
   preload: ->
     @game.stage.disableVisibilityChange = true
-    @game.load.image 'blue', 'assets/images/blue.png'
+    @game.load.image 'ship', 'assets/images/ship.png'
 
     console.log 'Main state done preloading'
 
