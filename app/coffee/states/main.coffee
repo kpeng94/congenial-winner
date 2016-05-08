@@ -27,6 +27,7 @@ class Main extends Phaser.State
     @gameStarted = false
     @playerScores = {}
     @teamScores = {}
+    @playersReadyStatus = {}
 
   init: (startData) ->
     console.log(startData)
@@ -34,6 +35,9 @@ class Main extends Phaser.State
 
   preload: ->
     @game.stage.disableVisibilityChange = true
+    @game.load.image 'blue', 'assets/images/blue.png'
+
+    console.log 'Main state done preloading'
 
   create: ->
     @timer = @game.time.create()
@@ -69,10 +73,11 @@ class Main extends Phaser.State
       player.body.acceleration.y = -player.body.velocity.y * 0.25
       timeElapsed = @timer.elapsed
       # Update the death timer on every dead player
-      if player.color of @playerToTimeDead
-        @playerToTimeDead[player.color] += timeElapsed
-        if @playerToTimeDead[player.color] >= DEATH_DURATION
-          delete @playerToTimeDead[player.color]
+      if player.playerColor of @playerToTimeDead
+        player.isInvincible = true
+        @playerToTimeDead[player.playerColor] += timeElapsed
+        if @playerToTimeDead[player.playerColor] >= DEATH_DURATION
+          delete @playerToTimeDead[player.playerColor]
           @_resetSpriteToRandomValidLocation player
           player.respawnAnimation.restart()
       # If the player just respawned, play the animation
@@ -110,9 +115,9 @@ class Main extends Phaser.State
         player = new Player(@game, playerColor)
         @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
+        @playersReadyStatus[playerColor] = false
         @playersGroup.add(player)
-        if util.getDictLength(@players) is config.numPlayers
-          @_startGame()
+        @_updateReadyTable()
 
     @socket.on 'player left', (playerColor) =>
       console.log 'Player with color ' + playerColor + ' left'
@@ -121,6 +126,7 @@ class Main extends Phaser.State
         player.destroy()
         @playersGroup.remove(player)
         delete @players[playerColor]
+        delete @playersReadyStatus[playerColor]
 
     @socket.on 'rotate', (data) =>
       playerColor = data.playerColor
@@ -128,7 +134,7 @@ class Main extends Phaser.State
       if @players[playerColor]?
         player = @players[playerColor]
         input = config.PLAYER_ROTATION_DELTA * data.input
-        player.angle += input #TODO(denisli): tweak
+        player.angle += input
 
     @socket.on 'move', (data) =>
       playerColor = data.playerColor
@@ -159,19 +165,57 @@ class Main extends Phaser.State
       @teamScores = data.teamScores
       @_updateScoreTable(@playerScores, null, false)
 
+    @socket.on 'player ready', (playerColor) =>
+      @playersReadyStatus[playerColor] = true
+      @_updateReadyTable()
+
+      correctNumPlayers = util.getDictLength(@players) is config.numPlayers
+      everyoneIsReady = true
+      for playerColor of @playersReadyStatus
+        if not @playersReadyStatus[playerColor]
+          everyoneIsReady = false
+
+      if correctNumPlayers and everyoneIsReady
+        $('#readytable').remove()
+        @_startGame()
+
+
+  _updateReadyTable: ->
+    $('#readytable').empty()
+
+    # Add header row
+    headerRow = $('<tr />)')
+    playerText = $('<th />').html('Player')
+    readyText = $('<th />').addClass('ready-status').html('Ready?')
+    headerRow.append(playerText)
+    headerRow.append(readyText)
+    $('#readytable').append(headerRow)
+
+    for playerColor of @playersReadyStatus
+      row = $('<tr />)')
+      styles = {'background-color': playerColor}
+      playerData = $('<td />').addClass('player').css(styles)
+      if @playersReadyStatus[playerColor]
+        playerReadyText = $('<td />').html('READY')
+      else
+        playerReadyText = $('<td />').html('NOT READY')
+      row.append(playerData)
+      row.append(playerReadyText)
+      $('#readytable').append(row)
+
   _updateScoreTable: (playerScores, teamScores, sortByTeamScores) ->
     $('#scoretable').empty()
 
     # Add header row
-    headerrow = $('<tr />)')
-    emptyCell = $('<th />')
+    headerRow = $('<tr />)')
+    playerText = $('<th />').html('Player')
     playerScoreText = $('<th />').addClass('player-score').html('Individual Score')
-    headerrow.append(emptyCell)
-    headerrow.append(playerScoreText)
+    headerRow.append(playerText)
+    headerRow.append(playerScoreText)
     if teamScores?
       teamScoreText = $('<th />').addClass('team-score').html('Overall Score')
-      headerrow.append(teamScoreText)
-    $('#scoretable').append(headerrow)
+      headerRow.append(teamScoreText)
+    $('#scoretable').append(headerRow)
 
     if teamScores? and sortByTeamScores
       playersOrder = util.sortDictionaryByValue(teamScores)
@@ -197,28 +241,28 @@ class Main extends Phaser.State
       bullet.bounces = 1
 
   _playerBulletCollision: (player, bullet) =>
-    collisionData = {shooter: bullet.owner.toString(16), target: player.color.toString(16)}
+    collisionData = {shooter: bullet.owner.toString(16), target: player.playerColor.toString(16)}
 
     bulletHasHitWall = bullet.bounces? and bullet.bounces >= 1
-    bulletNotOwnedByPlayer = bullet.owner isnt player.color
+    bulletNotOwnedByPlayer = bullet.owner isnt player.playerColor
 
     # If the bullet bounced off some wall, the bullet should be able to kill any player
     # Otherwise, the bullet should only be able to hit OTHER players
     if (bulletHasHitWall or bulletNotOwnedByPlayer) and (not player.isInvincible)
       bullet.kill()
-      @playerToTimeDead[player.color] = 0
+      @playerToTimeDead[player.playerColor] = 0
       # Hack where we reset sprite out of the screen to avoid it blocking
       player.reset( -100, -100 )
       player.visible = false
       @_setInvincibility player, true
       if @gameStarted
-        @socket.emit('hit-player', collisionData)
+        @socket.emit('hit player', collisionData)
 
   _fire: (player) ->
     bullet = @bullets.getFirstExists(false)
     # bullet.children[0] contains the graphic for the bullet
-    bullet.children[0].tint = util.formatColor(player.color)
-    bullet.owner = player.color
+    bullet.children[0].tint = util.formatColor(player.playerColor)
+    bullet.owner = player.playerColor
     bullet.reset(player.x, player.y)
     bullet.lifespan = BULLET_LIFESPAN
     bullet.bounces = 0
@@ -231,12 +275,12 @@ class Main extends Phaser.State
       player.respawnAnimation.stop()
       player.visible = true
       @_setInvincibility player, false
-      console.log('Set player ' + player.color + ' to not invincible')
+      console.log('Set player ' + player.playerColor + ' to not invincible')
 
   _setInvincibility: (player, isInvincible) ->
-    console.log('Set invincibility for player ' + player.color + ' to ' + isInvincible)
+    console.log('Set invincibility for player ' + player.playerColor + ' to ' + isInvincible)
     player.isInvincible = isInvincible
-    invincibilityData = {isInvincible: isInvincible, playerColor: player.color}
+    invincibilityData = {isInvincible: isInvincible, playerColor: player.playerColor}
     @socket.emit('invincibility', invincibilityData)
 
   _resetSpriteToRandomValidLocation: (sprite) ->

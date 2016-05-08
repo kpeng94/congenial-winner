@@ -25,6 +25,6 @@ module.exports =
   PLAYER_FIRE_CD: 500 # milliseconds
 
   # Scoring configs
-  HIT_INCREMENT: 2
+  HIT_INCREMENT: 1
   HURT_DECREMENT: 1
   SELF_HIT_DECREMENT: 1
