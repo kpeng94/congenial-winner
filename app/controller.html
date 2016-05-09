@@ -9,29 +9,31 @@
         <script type="text/javascript" src="socket.io/socket.io.js"></script>
         <link rel="icon" type="image/ico" href="assets/icon/pewpew.ico">
     </head>
-    <body>
-        <div id='death-timer-countdown'>
-        </div>
-        <div id="container">
-        </div>
-        <div>
-            Teammates:
-            <table id='teammates-table'>
-                <tr id ='teammates'><td>Not yet determined</td></tr>
-            </table>
-        </div>
-
-        <div>
+    <body style="width: 1280px">
+        <div style="margin: 0% 15%;">
             <div>
-            Score: <span id = 'my-score'>0</span>
+                <table id='teammates-table'>
+                    <th colspan="2">Teammates</th>
+                    <tr id ='teammates'><td>Not yet determined</td></tr>
+                </table>
+
+                <div id="container">
+                </div>
+
+                <table id='score'>
+                    <th>Individual Score</th>
+                    <th>Team Score</th>
+                    <tr>
+                        <td id='my-score'>0</td>
+                        <td id='team-score'>0</td>
+                    </tr>
+                </table>
             </div>
-            <div>
-            Team score: <span id = 'team-score'>0</span>
+            <div id='death-timer-countdown'>
             </div>
         </div>
-
-        <div>
-           <button id ='ready'>Send ready</button>
+        <div style="clear: left; margin-left: 590px; margin-right: auto;">
+           <button id ='ready'>Send Ready!</button>
         </div>
         <script type="text/javascript" src="js/controller.js"></script>
     </body>
