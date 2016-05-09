@@ -108,7 +108,7 @@ socket.on 'deathTimerCountdown', (time) ->
   if time <= 0
     $('#death-timer-countdown').text('')
   else
-    $('#death-timer-countdown').text(time + ' milliseconds until respawn')
+    $('#death-timer-countdown').text((time/1000).toFixed(1) + ' seconds until respawn')
 
 '''
 Respond to key events
