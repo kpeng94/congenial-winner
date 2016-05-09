@@ -25,11 +25,15 @@ class LevelSelect extends Phaser.State
   create: =>
     @game.stage.backgroundColor = config.backgroundColor
     # TODO(kpeng94): will have to fiddle with the locations and may have to move
-    # text
+    style = {font: '65px Orbitron', fill: config.fontColor, align: 'center'}
+    text = 'Select a Level'
+    titleText = @game.add.text(@game.world.centerX, 40, text, style)
+    titleText.anchor.setTo(0.5, 0.5)
+
     for i in [1...config.numLevels + 1]
       text = i
-      x = 110 + 300 * (i - 1)
-      y = 110 
+      x = 50 + 400 * (i - 1)
+      y = 150 
 
       button = @game.add.button(x, y, 'button', @_highlight_level, @)
       @game.add.text(x, y, text, {fill: '#000000'})
@@ -41,7 +45,7 @@ class LevelSelect extends Phaser.State
     y = config.height - 130
     creditsButton = @game.add.button(x, y, 'credits_button', @_goToCredits, @)
 
-    x = config.width - 330
+    x = config.width - 300
     y = config.height - 130
     startButton = @game.add.button(x, y, 'start_button', @_startGame, @)
   _startGame: (button) ->
