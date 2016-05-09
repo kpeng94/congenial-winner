@@ -12,35 +12,55 @@ class LevelSelect extends Phaser.State
     super()
     @socket = (new Socket).getSocket()
     console.log('Level select state constructed')
+    @buttons = new Array config.numLevels
+    @selected
 
   preload: ->
     # TODO(kpeng94): cleanup so that this uses config.pack instead
     # @load.pack('main', config.pack)
+    @game.load.image('credits_button', 'assets/img/credits_button.png')
     @game.load.image('button', 'assets/img/button.png')
+    @game.load.image('start_button',  'assets/img/start_button.png')
 
   create: =>
     @game.stage.backgroundColor = config.backgroundColor
     # TODO(kpeng94): will have to fiddle with the locations and may have to move
-    # text
+    style = {font: '65px Orbitron', fill: config.fontColor, align: 'center'}
+    text = 'Select a Level'
+    titleText = @game.add.text(@game.world.centerX, 40, text, style)
+    titleText.anchor.setTo(0.5, 0.5)
+
     for i in [1...config.numLevels + 1]
       text = i
-      x = 400
-      y = 100 + i * 75
+      x = 50 + 400 * (i - 1)
+      y = 150 
 
-      button = @game.add.button(x, y, 'button', @_startGame, @)
+      button = @game.add.button(x, y, 'button', @_highlight_level, @)
       @game.add.text(x, y, text, {fill: '#000000'})
       button.level = i
+      @buttons[i - 1] = button
 
     # TODO (kpeng94): change this as well
-    x = config.width - 200
-    y = config.height - 75
-    text = 'Credits'
-    creditsButton = @game.add.button(x, y, 'button', @_goToCredits, @)
-    @game.add.text(x, y, text, {fill: '#000000'})
+    x = 40
+    y = config.height - 130
+    creditsButton = @game.add.button(x, y, 'credits_button', @_goToCredits, @)
 
+    x = config.width - 300
+    y = config.height - 130
+    startButton = @game.add.button(x, y, 'start_button', @_startGame, @)
   _startGame: (button) ->
-    startData = {level: button.level}
+    if @selected
+      levelNumber = @selected 
+    else
+      levelNumber = Math.ceil(Math.random() * 3)
+    startData = {level: levelNumber}
     @state.start('Main', true, false, startData)
+
+  _highlight_level: (button) ->
+    if @selected 
+      @buttons[@selected - 1].tint = '0xFFFFFF'
+    @selected = button.level
+    @buttons[@selected - 1].tint = '0x00FF00'
 
   _goToCredits: ->
     @state.start('Credits', true, false)

@@ -3,7 +3,7 @@ module.exports =
   width: 1280
   height: 720
   gameContainer: 'game'
-  backgroundColor: '#EEEEEE'
+  backgroundColor: '#666666'
 
   # Game settings
   numPlayers: 6
@@ -12,8 +12,8 @@ module.exports =
   gameLength: 60 # seconds
 
   # Game font styles
-  fontStyle: '65px Arial' #TODO (kpeng94): change this
-  fontColor: '#FF0000'
+  fontStyle: '55px Orbitron' #TODO (kpeng94): change this
+  fontColor: '#000000'
   pack: 'assets/pack.json'
 
   # Player movement settings
