@@ -11,20 +11,11 @@ class Credits extends Phaser.State
     @socket = (new Socket).getSocket()
     console.log('Credits state constructed')
 
-  WebFontConfig = {
-    active: -> game.time.events.add(Phaser.Timer.SECOND, createText, this),
-
-    google: {
-      families: ['Orbitron']
-    }
-  };
-
   preload: ->
     # TODO(kpeng94): cleanup so that this uses config.pack instead
     # @load.pack('main', config.pack)
     @game.load.image('button', 'assets/img/button.png')
     @game.load.image('back_button','assets/img/back_button.png')
-    @game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 
   create: =>
     @game.stage.backgroundColor = config.backgroundColor

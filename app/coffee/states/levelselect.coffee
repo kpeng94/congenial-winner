@@ -49,7 +49,11 @@ class LevelSelect extends Phaser.State
     y = config.height - 130
     startButton = @game.add.button(x, y, 'start_button', @_startGame, @)
   _startGame: (button) ->
-    startData = {level: @selected}
+    if @selected
+      levelNumber = @selected 
+    else
+      levelNumber = Math.ceil(Math.random() * 3)
+    startData = {level: levelNumber}
     @state.start('Main', true, false, startData)
 
   _highlight_level: (button) ->
