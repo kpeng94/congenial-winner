@@ -32,7 +32,11 @@ _sendInitialPlayerData = ->
   # Receive the player's color and render it onto the controller's screen
   socket.on 'player color', (input) ->
     playerColor = input
-    $('#container').css('background-color', playerColor)
+    $('#container').css({
+      'background-color': playerColor
+      'border-style': 'solid'
+      'border-width': '4px'
+      })
 
 '''
 Send controller input to the server
