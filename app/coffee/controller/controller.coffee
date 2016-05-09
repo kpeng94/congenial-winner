@@ -22,10 +22,15 @@ keysDown = [] # List of key down presses.
 socket = io()
 util = new Util
 
+_sendReadySignal = ->
+  socket.emit('player ready')
+  socket.on 'game start', ->
+    $('#ready').remove()
+
 _sendInitialPlayerData = ->
-  socket.emit('addPlayer')
+  socket.emit('add player')
   # Receive the player's color and render it onto the controller's screen
-  socket.on 'playerColor', (input) ->
+  socket.on 'player color', (input) ->
     playerColor = input
     $('#container').css('background-color', playerColor)
 
@@ -41,12 +46,11 @@ _sendMoveInput = (xInput, yInput) ->
   socket.emit('move', xInput, yInput)
 
 _sendFireInput = ->
-  if not isInvincible
-    fireTime = new Date()
-    playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
-    if playerCanFire
-      previousFireTime = fireTime
-      socket.emit('fire')
+  fireTime = new Date()
+  playerCanFire = fireTime - previousFireTime > config.PLAYER_FIRE_CD
+  if playerCanFire
+    previousFireTime = fireTime
+    socket.emit('fire')
 
 _sendInitialPlayerData()
 
@@ -83,18 +87,24 @@ socket.on 'teammates', (teammates) ->
     $('#teammates').append(player)
   console.log teammates
 
-socket.on 'update-my-score', (score) ->
+socket.on 'update my score', (score) ->
   console.debug 'score'
   console.debug score
   $('#my-score').text(score)
 
-socket.on 'update-team-score', (score) ->
+socket.on 'update team score', (score) ->
   console.debug 'team-score'
   console.debug score
   $('#team-score').text(score)
 
 socket.on 'invincibility', (isInvincibleBool) ->
   isInvincible = isInvincibleBool
+
+socket.on 'deathTimerCountdown', (time) ->
+  if time <= 0
+    $('#death-timer-countdown').text('')
+  else
+    $('#death-timer-countdown').text(time + ' milliseconds until respawn')
 
 '''
 Respond to key events
@@ -113,3 +123,6 @@ $(window).keyup (event) ->
   if keyCodeToName[code] isnt null and code of keyCodeToName
     keyName = keyCodeToName[code]
     keysDown[keyName] = false
+
+$('#ready').click ->
+  _sendReadySignal()
