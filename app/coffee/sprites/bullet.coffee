@@ -17,8 +17,8 @@ class Bullet extends Phaser.Sprite
 
   _constructSprite: ->
     graphics = @game.add.graphics 0, 0
-    graphics.lineStyle(0)
     graphics.beginFill(util.formatColor(@owner), BULLET_OPACITY)
+    graphics.lineStyle(1,0x000000,1)
     graphics.drawCircle(0, 0, BULLET_RADIUS)
     graphics.endFill()
     @.addChild graphics

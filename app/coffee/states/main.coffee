@@ -335,7 +335,7 @@ class Main extends Phaser.State
     @socket.emit('startGame')
     offsetX = 20
     offsetY = 8
-    style = {font: '12px Arial', fill: '#000000', align: 'center'}
+    style = {font: '12px Orbitron', fill: '#000000', align: 'center'}
     @timer.add(Phaser.Timer.SECOND * config.gameLength, @_setGameOver)
     @timerStarted = true
     @timer.start()

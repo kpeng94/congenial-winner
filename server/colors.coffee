@@ -4,8 +4,8 @@ visuallyDistinguishableColors = [
   '#ff00ff',
   '#ffac00',
   '#00ffeb',
-  '#ffffff',
-  '#000000'
+  '#000000',
+  '#ffffff'
 ]
 
 module.exports = visuallyDistinguishableColors
