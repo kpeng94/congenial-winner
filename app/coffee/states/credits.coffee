@@ -30,7 +30,7 @@ class Credits extends Phaser.State
     menuButton = @game.add.button(x, y, 'button', @_goToLevelSelect, @)
     @game.add.text(x, y, text, {fill: '#000000'})
 
-  _goToLevelSelect: () ->
+  _goToLevelSelect: ->
     @state.start('LevelSelect', true, false)
 
 module.exports = Credits
