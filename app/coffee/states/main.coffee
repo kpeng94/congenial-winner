@@ -180,6 +180,7 @@ class Main extends Phaser.State
 
       if correctNumPlayers and everyoneIsReady
         $('#readytable').remove()
+        $('#timer').show()
         @_startGame()
 
 
