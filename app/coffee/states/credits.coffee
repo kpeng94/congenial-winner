@@ -21,16 +21,16 @@ class Credits extends Phaser.State
     @game.stage.backgroundColor = config.backgroundColor
 
     style = {font: '45px Orbitron', fill: config.fontColor, align: 'center'}
-    text = 'Lobby BGM: BossLevel VGM by Joe Baxter-Webb\nMain BGM: System Shock by neocrey'
-    @creditsText = @game.add.text(@game.world.centerX, @game.world.centerY, text, style)
+    text = 'Game By: \nDamon Doucet, Ethan Kim,\n Eric LaCava, Doms Li, Kevin Peng,\n Kevin Rodriguez, and Dirk Stahlecker\n\n\nLobby BGM: BossLevel VGM by Joe Baxter-Webb\nMain BGM: System Shock by neocrey'
+    @creditsText = @game.add.text(@game.world.centerX, @game.world.centerY - 60, text, style)
     @creditsText.anchor.setTo(0.5, 0.5)
 
-    x = config.width - 300
+    x = 40
     y = config.height - 130
     text = 'Back To Menu'
     menuButton = @game.add.button(x, y, 'back_button', @_goToLevelSelect, @)
 
   _goToLevelSelect: ->
-    @state.start('LevelSelect', true, false)
+    @state.start('Title', true, false)
 
 module.exports = Credits
