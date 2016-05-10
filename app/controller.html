@@ -10,31 +10,59 @@
         <script type="text/javascript" src="socket.io/socket.io.js"></script>
         <link rel="icon" type="image/ico" href="assets/icon/pewpew.ico">
     </head>
-    <body style="width: 1280px">
-        <div style="margin: 0% 15%;">
+    <style>
+        .button {
+            background-color: #0060FF;
+            border: 2px solid black;
+            color: black;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+    </style>
+    <body style="width: 1280px; margin: auto;">
+        <div style="margin: 0% 10%;color: yellow; border: 2px solid black; background-color: #666666">
             <div>
                 <table id='teammates-table'>
-                    <th colspan="2">Teammates</th>
-                    <tr id ='teammates'><td>Not yet determined</td></tr>
+                    <th colspan="2" style="background-color: black">Teammates</th>
+                    <tr id ='teammates' style="background-color: black"><td>Not yet determined</td></tr>
                 </table>
 
-                <div id="container">
+                <div id="container" style="color: black; text-align: center; font: 14px Orbitron">
+                    <p> 
+                    WASD or arrow keys for movement<br>
+                    QE for rotation<br>
+                    Spacebar to shoot<br>
+                    You gain 1 point to your personal score each time you shoot any other player.<br>
+                    You lose 1 point from your personal score each time you are shot (including by yourself).<br>
+                    Each player has two teammates.<br>
+                    These teammates are hidden from others and only shown on your individual screen.<br>
+                    Teams are asymmetric.  This means that if Player 2 is on your team, you are not on Player 2’s team.<br>
+                    Your final score is the sum of your personal score and your teammates’ personal scores after 3 min.<br>
+                    The player with the highest final score wins.<br>
+                    The game lasts 3 min.<br>
+                    You have unlimited respawns.<br>
+                    You respawn automatically.<br>
+                    After respawn, you are invincible until you move/turn/shoot or until 10 seconds is up, whichevercomes first.<br>
+                    </p>
                 </div>
 
                 <table id='score'>
-                    <th>Individual Score</th>
-                    <th>Team Score</th>
+                    <th style="background-color: black">Individual Score</th>
+                    <th style="background-color: black">Team Score</th>
                     <tr>
-                        <td id='my-score'>0</td>
-                        <td id='team-score'>0</td>
+                        <td id='my-score' style="background-color: black">0</td>
+                        <td id='team-score' style="background-color: black">0</td>
                     </tr>
                 </table>
-            </div>
-            <div id='death-timer-countdown'>
-            </div>
         </div>
-        <div style="clear: left; margin-left: 590px; margin-right: auto;">
-           <button id ='ready'>Send Ready!</button>
+        <div style="clear: left;">
+           <button class="button" id ='ready'>Send Ready!</button>
+        </div>
+        </div style="clear: left; margin-left: 330px; margin-right: auto;">
+            <div id='death-timer-countdown'>
         </div>
         <script type="text/javascript" src="js/controller.js"></script>
     </body>

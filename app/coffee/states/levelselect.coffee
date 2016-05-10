@@ -33,7 +33,7 @@ class LevelSelect extends Phaser.State
     for i in [1...config.numLevels + 1]
       text = i
       x = 50 + 400 * (i - 1)
-      y = 150 
+      y = 150
 
       button = @game.add.button(x, y, 'button', @_highlight_level, @)
       @game.add.text(x, y, text, {fill: '#000000'})
@@ -50,14 +50,14 @@ class LevelSelect extends Phaser.State
     startButton = @game.add.button(x, y, 'start_button', @_startGame, @)
   _startGame: (button) ->
     if @selected
-      levelNumber = @selected 
+      levelNumber = @selected
     else
       levelNumber = Math.ceil(Math.random() * 3)
     startData = {level: levelNumber}
     @state.start('Main', true, false, startData)
 
   _highlight_level: (button) ->
-    if @selected 
+    if @selected
       @buttons[@selected - 1].tint = '0xFFFFFF'
     @selected = button.level
     @buttons[@selected - 1].tint = '0x00FF00'

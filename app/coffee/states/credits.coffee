@@ -15,7 +15,7 @@ class Credits extends Phaser.State
     # TODO(kpeng94): cleanup so that this uses config.pack instead
     # @load.pack('main', config.pack)
     @game.load.image('button', 'assets/img/button.png')
-    @game.load.image('back_button','assets/img/back_button.png')
+    @game.load.image('back_button', 'assets/img/back_button.png')
 
   create: =>
     @game.stage.backgroundColor = config.backgroundColor
