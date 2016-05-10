@@ -18,7 +18,6 @@ class LevelSelect extends Phaser.State
   preload: ->
     # TODO(kpeng94): cleanup so that this uses config.pack instead
     # @load.pack('main', config.pack)
-    @game.load.image('credits_button', 'assets/img/credits_button.png')
     @game.load.image('button', 'assets/img/button.png')
     @game.load.image('start_button',  'assets/img/start_button.png')
 
@@ -41,9 +40,6 @@ class LevelSelect extends Phaser.State
       @buttons[i - 1] = button
 
     # TODO (kpeng94): change this as well
-    x = 40
-    y = config.height - 130
-    creditsButton = @game.add.button(x, y, 'credits_button', @_goToCredits, @)
 
     x = config.width - 300
     y = config.height - 130
@@ -61,8 +57,5 @@ class LevelSelect extends Phaser.State
       @buttons[@selected - 1].tint = '0xFFFFFF'
     @selected = button.level
     @buttons[@selected - 1].tint = '0x00FF00'
-
-  _goToCredits: ->
-    @state.start('Credits', true, false)
 
 module.exports = LevelSelect

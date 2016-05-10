@@ -9,7 +9,7 @@ module.exports =
   numPlayers: 6
   numTeammates: 2
   numLevels: 3
-  gameLength: 60 # seconds
+  gameLength: 180 # seconds
 
   # Game font styles
   fontStyle: '55px Orbitron' #TODO (kpeng94): change this
