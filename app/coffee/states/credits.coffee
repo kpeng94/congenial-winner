@@ -21,7 +21,7 @@ class Credits extends Phaser.State
     @game.stage.backgroundColor = config.backgroundColor
 
     style = {font: '45px Orbitron', fill: config.fontColor, align: 'center'}
-    text = 'Game By: \nDamon Doucet, Ethan Kim,\n Eric LaCava, Doms Li, Kevin Peng,\n Kevin Rodriguez, and Dirk Stahlecker\n\n\nLobby BGM: BossLevel VGM by Joe Baxter-Webb\nMain BGM: System Shock by neocrey'
+    text = 'Game By: \nDamon Doucet, Ethan Kim,\n Eric LaCava, Denis Li, Kevin Peng,\n Kevin Rodriguez, and Dirk Stahlecker\n\n\nLobby BGM: BossLevel VGM by Joe Baxter-Webb\nMain BGM: System Shock by neocrey'
     @creditsText = @game.add.text(@game.world.centerX, @game.world.centerY - 60, text, style)
     @creditsText.anchor.setTo(0.5, 0.5)
 
