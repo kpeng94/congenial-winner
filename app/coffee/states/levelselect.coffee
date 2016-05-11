@@ -20,6 +20,9 @@ class LevelSelect extends Phaser.State
     # @load.pack('main', config.pack)
     @game.load.image('button', 'assets/img/button.png')
     @game.load.image('start_button',  'assets/img/start_button.png')
+    @game.load.image('level1', 'assets/img/level1.png')
+    @game.load.image('level2', 'assets/img/level2.png')
+    @game.load.image('level3', 'assets/img/level3.png')
 
   create: =>
     @game.stage.backgroundColor = config.backgroundColor
@@ -34,8 +37,8 @@ class LevelSelect extends Phaser.State
       x = 50 + 400 * (i - 1)
       y = 150
 
-      button = @game.add.button(x, y, 'button', @_highlight_level, @)
-      @game.add.text(x, y, text, {fill: '#000000'})
+      button = @game.add.button(x, y, 'level' + i, @_highlight_level, @)
+      button.scale.setTo(0.35, 0.5)
       button.level = i
       @buttons[i - 1] = button
 
