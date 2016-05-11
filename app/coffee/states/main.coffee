@@ -36,10 +36,15 @@ class Main extends Phaser.State
   preload: ->
     @game.stage.disableVisibilityChange = true
     @game.load.image 'ship', 'assets/img/ship.png'
-
     console.log 'Main state done preloading'
 
   create: ->
+    @bgm = @game.add.audio('main-bgm')
+    @bgm.play('', 0, 0.10, true, false)
+    @click_sfx = @game.add.audio('click-sfx')
+    @ready_sfx = @game.add.audio('ready-sfx')
+    @attack_sfx = @game.add.audio('attack-sfx')
+    @destroy_sfx = @game.add.audio('destroy-sfx')
     @timer = @game.time.create()
     @game.stage.backgroundColor = config.backgroundColor
     @game.physics.startSystem(Phaser.Physics.ARCADE)
@@ -68,6 +73,7 @@ class Main extends Phaser.State
     console.log 'Main state created'
 
   update: ->
+    @bgm.play('', 0, 0.10, true, false)
     for player in @playersGroup.children
       player.body.acceleration.x = -player.body.velocity.x * 0.25
       player.body.acceleration.y = -player.body.velocity.y * 0.25
@@ -116,6 +122,7 @@ class Main extends Phaser.State
       console.log 'Player with color ' + playerColor + ' joined'
       if playerColor not of @players
         player = new Player(@game, playerColor)
+        @ready_sfx.play('', 0, 1, false, true)
         @_resetSpriteToRandomValidLocation player
         @players[playerColor] = player
         @playersReadyStatus[playerColor] = false
@@ -156,6 +163,7 @@ class Main extends Phaser.State
           @_turnOffInvincibility player
 
     @socket.on 'fire', (data) =>
+      @attack_sfx.play('', 0, 1, false, true)
       playerColor = data.playerColor
       @_logIfPlayerColorDoesNotExist playerColor
       if @players[playerColor]?
@@ -169,6 +177,7 @@ class Main extends Phaser.State
       @_updateScoreTable(@playerScores, null, false)
 
     @socket.on 'player ready', (playerColor) =>
+      @click_sfx.play('', 0, 1, false, true)
       @playersReadyStatus[playerColor] = true
       @_updateReadyTable()
 
@@ -253,6 +262,7 @@ class Main extends Phaser.State
     # If the bullet bounced off some wall, the bullet should be able to kill any player
     # Otherwise, the bullet should only be able to hit OTHER players
     if (bulletHasHitWall or bulletNotOwnedByPlayer) and (not player.isInvincible)
+      @destroy_sfx.play('', 0, 1, false, true)
       bullet.kill()
       @playerToTimeDead[player.playerColor] = 0
       # Hack where we reset sprite out of the screen to avoid it blocking
