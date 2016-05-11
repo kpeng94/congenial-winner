@@ -24,7 +24,9 @@ class LevelSelect extends Phaser.State
     @game.load.image('level2', 'assets/img/level2.png')
     @game.load.image('level3', 'assets/img/level3.png')
 
+
   create: =>
+    @click_sfx = @game.add.audio('click-sfx')
     @game.stage.backgroundColor = config.backgroundColor
     # TODO(kpeng94): will have to fiddle with the locations and may have to move
     style = {font: '65px Orbitron', fill: config.fontColor, align: 'center'}
@@ -53,6 +55,8 @@ class LevelSelect extends Phaser.State
     else
       levelNumber = Math.ceil(Math.random() * 3)
     startData = {level: levelNumber}
+    @game.sound.stopAll()
+    @click_sfx.play('', 0, 1, false, false)
     @state.start('Main', true, false, startData)
 
   _highlight_level: (button) ->
